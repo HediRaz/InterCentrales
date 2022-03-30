@@ -1,2 +1,7 @@
 **__pycache__**
 .vscode
+**pretrained_models**
+**shape_predictor**
+latents_celeba
+latents_group
+img_align_celeba

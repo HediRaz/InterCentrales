@@ -7,7 +7,8 @@ import torchvision.transforms as transforms
 
 from encoder4editing.models.psp import pSp
 
-from tkinter_ui import EditWindow
+from pca_ui import EditWindow
+from celeba_ui import CelebaEditWindow
 
 
 MODEL_PATH = "encoder4editing/pretrained_models/e4e_ffhq_encode.pt"
@@ -20,14 +21,17 @@ img_transforms = transforms.Compose([
 
 
 ckpt = torch.load(MODEL_PATH, map_location='cpu')
+for u in list(ckpt.keys()):
+    if "opts" not in u:
+        ckpt.pop(u)
 opts = ckpt['opts']
 # pprint.pprint(opts)  # Display full options used
 # update the training options
 opts['checkpoint_path'] = MODEL_PATH
 opts= Namespace(**opts)
 net = pSp(opts)
-net.eval()
-net.cuda()
+# net.eval()
+# net.cuda()
 print('Model successfully loaded!')
 
 
@@ -42,9 +46,14 @@ encoder = net.encoder
 # def generator(latents, randomize_noise, input_is_latent):
 #     return torch.rand((1, 1, 3, 256, 256), device="cuda")
 generator = net.decoder
+
+"""
 ganspace_pca = torch.load('encoder4editing/editings/ganspace_pca/ffhq_pca.pt')
 latents_avg = net.latent_avg
 
 
-EditWindow(img_transforms, encoder, generator, ganspace_pca, latents_avg)
-
+app = EditWindow(img_transforms, encoder, generator, ganspace_pca, latents_avg)
+app.mainloop()
+"""
+app = CelebaEditWindow(img_transforms, encoder, generator, net.latent_avg)
+app.mainloop()

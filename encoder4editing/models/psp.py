@@ -43,7 +43,15 @@ class pSp(nn.Module):
             print('Loading e4e over the pSp framework from checkpoint: {}'.format(self.opts.checkpoint_path))
             ckpt = torch.load(self.opts.checkpoint_path, map_location='cpu')
             self.encoder.load_state_dict(get_keys(ckpt, 'encoder'), strict=True)
+            self.encoder.eval()
+            self.encoder.cuda()
+            for u in list(ckpt["state_dict"].keys()):
+                if "encoder" in u:
+                    ckpt["state_dict"].pop(u)
             self.decoder.load_state_dict(get_keys(ckpt, 'decoder'), strict=True)
+            self.decoder.eval()
+            self.decoder.cuda()
+            ckpt.pop("state_dict")
             self.__load_latent_avg(ckpt)
         else:
             print('Loading encoders weights from irse50!')
@@ -98,3 +106,55 @@ class pSp(nn.Module):
                 self.latent_avg = self.latent_avg.repeat(repeat, 1)
         else:
             self.latent_avg = None
+
+
+class pSp_encoder(nn.Module):
+
+    def __init__(self, opts):
+        super(pSp_encoder, self).__init__()
+        self.opts = opts
+        # Define architecture
+        self.encoder = self.set_encoder()
+        # Load weights if needed
+        self.load_weights()
+
+    def set_encoder(self):
+        if self.opts.encoder_type == 'GradualStyleEncoder':
+            encoder = psp_encoders.GradualStyleEncoder(50, 'ir_se', self.opts)
+        elif self.opts.encoder_type == 'Encoder4Editing':
+            encoder = psp_encoders.Encoder4Editing(50, 'ir_se', self.opts)
+        elif self.opts.encoder_type == 'SingleStyleCodeEncoder':
+            encoder = psp_encoders.BackboneEncoderUsingLastLayerIntoW(50, 'ir_se', self.opts)
+        else:
+            raise Exception('{} is not a valid encoders'.format(self.opts.encoder_type))
+        return encoder
+
+    def load_weights(self):
+        print('Loading e4e over the pSp framework from checkpoint: {}'.format(self.opts.checkpoint_path))
+        ckpt = torch.load(self.opts.checkpoint_path, map_location='cpu')
+        for u in list(ckpt["state_dict"].keys()):
+            if "decoder" in u:
+                ckpt["state_dict"].pop(u)
+        self.encoder.load_state_dict(get_keys(ckpt, 'encoder'), strict=True)
+        print("Model loaded")
+        self.encoder.eval()
+        self.encoder.cuda()
+        print("Model in GPU")
+        ckpt.pop("state_dict")
+        self.__load_latent_avg(ckpt)
+        print("Latents loaded")
+
+    def forward(self, x):
+        codes = self.encoder(x)
+        # normalize with respect to the center of an average face
+        if self.opts.start_from_latent_avg:
+            if codes.ndim == 2:
+                codes = codes + self.latent_avg.repeat(codes.shape[0], 1, 1)[:, 0, :]
+            else:
+                codes = codes + self.latent_avg.repeat(codes.shape[0], 1, 1)
+
+        return codes
+
+    def __load_latent_avg(self, ckpt, repeat=None):
+        if 'latent_avg' in ckpt:
+            self.latent_avg = ckpt['latent_avg'].to("cuda")
