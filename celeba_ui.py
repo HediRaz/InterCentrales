@@ -5,6 +5,7 @@ import tkinter as tk
 import torch
 
 from PIL import Image, ImageTk
+from functools import partial
 
 
 
@@ -48,7 +49,7 @@ class PathFrame(tk.Frame):
         self.button.place(x=320, y=1)
 
         self.result = tk.Label(self)
-        self.result.place(x=5, y=25)
+        self.result.place(x=380, y=5)
 
 
 class DeltaScaleFrame(tk.Frame):
@@ -56,7 +57,7 @@ class DeltaScaleFrame(tk.Frame):
         super().__init__(root)
         self.edit_command = edit_command
         self.scale_bar = tk.Scale(self, orient='horizontal', from_=-2, to=2, command=self.edit_command,
-                                  resolution=0.02, tickinterval=10, width=10, length=500)
+                                  resolution=0.02, tickinterval=1, width=10, length=500)
         self.scale_bar.pack(side=tk.TOP)
 
 
@@ -67,64 +68,90 @@ class CelebaEditWindow(tk.Tk):
         self.encoder = encoder
         self.generator = generator
         self.latents_avg = latents_avg
+        self.direction = dict()
 
         self.title("Edit window")
-        self.geometry("768x512")
+        self.geometry("1536x600")
 
-        self.img_canvas = ImgCanvas(self, width=256, height=512)
-        self.img_path_frame = PathFrame(self, lambda: self.img_path_callback(), width=512)
-        self.latents_path_frame = PathFrame(self, lambda: self.latents_path_callback(), text="Enter latents path", width=512)
-        self.delta_scale = DeltaScaleFrame(self, lambda e: self.infer_image())
+        self.img_canvas = []
+        self.img_path_frame = []
+        self.img_proj_label = []
+        for i in range(4):
+            self.img_canvas.append(ImgCanvas(self, width=256, height=512))
+            self.img_path_frame.append(PathFrame(self, partial(self.img_path_callback, i=i), width=512))
+            self.img_proj_label.append(tk.Label(self, text="0"))
 
-        self.img_canvas.place(x=512, y=0)
-        self.img_path_frame.place(x=0, y=0)
-        self.latents_path_frame.place(x=0, y=50)
-        self.delta_scale.place(x=0, y=200)
+        self.latents_path_frame = []
+        self.delta_scale = []
+        for i in range(5):
+            self.latents_path_frame.append(PathFrame(self, partial(self.latents_path_callback, i=i), text="Enter latents path", width=512))
+            self.delta_scale.append(DeltaScaleFrame(self, self.infer_image))
+
+        for i in range(4):
+            self.img_canvas[i].place(x=512 + 256*i, y=0)
+            self.img_path_frame[i].place(x=0, y=30*i)
+            self.img_proj_label[i].place(x=600 + 256*i, y=550)
+        for i in range(5):
+            self.latents_path_frame[i].place(x=0, y=140 + 30*i)
+            self.delta_scale[i].place(x=0, y=340 + 45 *i)
+        
+        self.latents = [None for _ in range(4)]
+        self.edit_latents = [None for _ in range(4)]
+        self.direction = [torch.zeros((18, 512), dtype=torch.float32, device="cuda") for _ in range(5)]
     
-    def img_path_callback(self):
-        img_path = self.img_path_frame.path.get()
+    def img_path_callback(self, i):
+        img_path = self.img_path_frame[i].path.get()
         img_path = os.path.normpath(img_path)
         if not os.path.exists(img_path):
-            self.img_path_frame.result.config(text="Path does not exist")
+            self.img_path_frame[i].result.config(text="Path does not exist")
             return
         else:
             img_pil = Image.open(img_path)
-            self.img_canvas.draw_image(img_pil, original=True)
+            self.img_canvas[i].draw_image(img_pil, original=True)
             # run_alignment(img_path)
             img = self.img_transforms(img_pil)
             with torch.no_grad():
-                self.latents = self.encoder(img.unsqueeze(0).to("cuda").float())[0]
-                if self.latents.ndim == 2:
-                    self.latents = self.latents + self.latents_avg.repeat(self.latents.shape[0], 1, 1)[:, 0, :]
-                else:
-                    self.latents = self.latents + self.latents_avg.repeat(self.latents.shape[0], 1, 1)
-            self.img_path_frame.result.config(text="Image loaded !")
+                self.latents[i] = self.encoder(img.unsqueeze(0).to("cuda").float())[0]
+                self.latents[i] = self.latents[i] + self.latents_avg.repeat(self.latents[i].shape[0], 1, 1)[:, 0, :]
+            self.img_path_frame[i].result.config(text="Image loaded !")
 
-    def latents_path_callback(self):
-        latents_path = self.latents_path_frame.path.get()
+    def latents_path_callback(self, i):
+        latents_path = self.latents_path_frame[i].path.get()
         latents_path = os.path.normpath(latents_path)
         if not os.path.exists(latents_path):
-            self.latents_path_frame.result.config(text="Path does not exist")
+            self.latents_path_frame[i].result.config(text="Path does not exist")
             return
         else:
             direction = load_latents(latents_path)
-            self.direction = torch.tensor(direction, device="cuda").float()
-            self.latents_path_frame.result.config(text="Latents loaded !")
+            self.direction[i] = torch.tensor(direction, device="cuda").float()
+            self.latents_path_frame[i].result.config(text="Latents loaded !")
+
+    def get_proj(self, j):
+        with torch.no_grad():
+            p = torch.mean(torch.square(self.direction[0] - self.edit_latents[j]))
+            p = p.cpu().item()
+        self.img_proj_label[j].config(text=str(p))
 
     def infer_image(self, *args, **kwargs):
-        coef = self.delta_scale.scale_bar.get()
-        self.edit_latents = self.latents + coef * self.direction
-        with torch.no_grad():
-            edit_image = self.generator([self.edit_latents.unsqueeze(0)], randomize_noise=False, input_is_latent=True)[0][0]
-        edit_image = edit_image.detach().cpu().transpose(0, 1).transpose(1, 2).numpy()
-        edit_image = ((edit_image + 1) / 2)
-        edit_image[edit_image < 0] = 0
-        edit_image[edit_image > 1] = 1
-        edit_image = edit_image * 255
-        edit_image = edit_image.astype("uint8")
-        edit_image = Image.fromarray(edit_image)
+        coef = self.delta_scale[0].scale_bar.get()
+        for j in range(4):
+            if self.latents[j] is not None:
+                self.edit_latents[j] = self.latents[j] + coef * self.direction[0]
+                for i in range(1, 5):
+                    if len(self.latents_path_frame[i].path.get()) > 0 and self.latents_path_frame[i].path.get() != "Enter latents path":
+                        self.edit_latents[j] += self.delta_scale[i].scale_bar.get() * coef * self.direction[i]
+                self.get_proj(j)
+                with torch.no_grad():
+                    edit_image = self.generator([self.edit_latents[j].unsqueeze(0)], randomize_noise=False, input_is_latent=True)[0][0]
+                edit_image = edit_image.detach().cpu().transpose(0, 1).transpose(1, 2).numpy()
+                edit_image = ((edit_image + 1) / 2)
+                edit_image[edit_image < 0] = 0
+                edit_image[edit_image > 1] = 1
+                edit_image = edit_image * 255
+                edit_image = edit_image.astype("uint8")
+                edit_image = Image.fromarray(edit_image)
 
-        self.img_canvas.draw_image(edit_image, original=False)
+                self.img_canvas[j].draw_image(edit_image, original=False)
 
 
 if __name__ == "__main__":
@@ -137,7 +164,7 @@ if __name__ == "__main__":
     ])
 
     def encoder(img):
-        return torch.rand((1, 16, 1, 512), device="cuda")
+        return torch.rand((1, 18, 1, 512), device="cuda")
 
     def generator(latents, randomize_noise, input_is_latent):
         return torch.rand((1, 1, 3, 256, 256), device="cuda")
