@@ -1,3 +1,5 @@
+# Script to encode all CelebA dataset with the e4e encoder
+# All encodings are saved in ./latent_celeba
 import sys
 sys.path.append("./encoder4editing")
 

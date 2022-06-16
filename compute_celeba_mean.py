@@ -1,3 +1,4 @@
+# Perform operations over celaba encodings
 import os
 import numpy as np
 import pandas as pd
@@ -19,6 +20,7 @@ print(f"There is {TOTAL_IMG} in the dataset")
 
 
 def get_att_df(df, att_name, yes=True):
+    """ Select rows from df where att_name == yes """
     if yes:
         res = df[df[att_name]]
     else:
@@ -32,6 +34,17 @@ def load_latents(filename, latents_folder="latents_celeba"):
 
 
 def get_latents_mean(df, latents_folder="latents_celeba", return_count=False, **kwargs):
+    """ Compute mean of encodings of images with specific attributes
+    Args:
+    df: dataframe with attributes
+    latents_folder: folder where latents are stored
+    return_count: if True, return number of images with specific attributes
+    kwargs: dictionary with attributes and their values
+
+    Returns:
+    mean: mean of encodings of images with specific attributes
+    count (if return_count is True): number of images with specific attributes
+    """
     for att in ATTRIBUTES:
         if att in kwargs:
             df = get_att_df(df, att, kwargs[att])
@@ -46,6 +59,16 @@ def get_latents_mean(df, latents_folder="latents_celeba", return_count=False, **
 
 
 def get_latents_sum(df, latents_folder="latents_celeba", **kwargs):
+    """ Compute sum of encodings of images with specific attributes 
+    Args:
+    df: dataframe with attributes
+    latents_folder: folder where latents are stored
+    kwargs: dictionary with attributes and their values
+
+    Returns:
+    sum: sum of encodings of images with specific attributes
+    count: number of images with specific attributes
+    """
     for att in ATTRIBUTES:
         if att in kwargs:
             df = get_att_df(df, att, kwargs[att])
@@ -59,7 +82,8 @@ def get_latents_sum(df, latents_folder="latents_celeba", **kwargs):
 
 
 def all_change():
-    dest_folder = "latents_group/all_change"
+    """ Compute dirrefence between mean of all attributes and mean of all attributes with one attribute changed """
+    dest_folder = "vectors_editing/all_change"
     for att in tqdm(ATTRIBUTES):
         l1 = get_latents_mean(df, **{att: False})
         l2 = get_latents_mean(df, **{att: True})
