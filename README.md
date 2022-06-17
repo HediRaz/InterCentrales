@@ -1,6 +1,14 @@
 # Gan Face Editing -- 2nd place
 
-**DISCLAIMER : This is a fork from [InterCentrale](https://github.com/HediRaz/InterCentrales) which is the work of the second team of Ceteris Paribus Face Data Challenge. The goal of this fork is to make it be merged on [GAN-Face-Editing](https://github.com/valentingol/gan-face-editing) for the branch `face_challenge`, consisting on the best submission of the challenge.**
+[![License](https://img.shields.io/github/license/valentingol/gan-face-editing-2?color=bdbdbd)](https://stringfixer.com/fr/MIT_license)
+![PythonVersion](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-informational)
+
+[![Flake8](https://github.com/valentingol/gan-face-editing-2/actions/workflows/flake.yaml/badge.svg)](https://github.com/valentingol/gan-face-editing-2/actions/workflows/flake.yaml)
+[![Pydocstyle](https://github.com/valentingol/gan-face-editing-2/actions/workflows/pydocstyle.yaml/badge.svg)](https://github.com/valentingol/gan-face-editing-2/actions/workflows/pydocstyle.yaml)
+[![Isort](https://github.com/valentingol/gan-face-editing-2/actions/workflows/isort.yaml/badge.svg)](https://github.com/valentingol/gan-face-editing-2/actions/workflows/isort.yaml)
+[![PyLint](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/valentingol/106c646ac67294657bccf02bbe22208f/raw/gan_face_editing_2_pylint.json)](https://github.com/valentingol/gan-face-editing/actions/workflows/pylint.yaml)
+
+**DISCLAIMER : This is a fork from [InterCentrale](https://github.com/HediRaz/InterCentrales) which is the work of the second team of Ceteris Paribus Face Data Challenge. The goal of this fork is to make it be merged on [GAN-Face-Editing](https://github.com/valentingol/gan-face-editing) for the branch `face_challenge`, consisting on the best submission for the challenge.**
 
 This repository and the repositories it contains are licensed under the [MIT license](LICENSE.md).
 
