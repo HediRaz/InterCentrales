@@ -1,7 +1,10 @@
+"""Utilities for GAN space manipulation."""
+
 import torch
 
 
 def edit(latents, pca, edit_directions):
+    """Edit latent vectors."""
     edit_latents = []
     for latent in latents:
         for pca_idx, start, end, strength in edit_directions:
@@ -13,10 +16,12 @@ def edit(latents, pca, edit_directions):
 
 
 def get_delta(pca, latent, idx, strength):
+    """Get delta vector."""
     # pca: ganspace checkpoint. latent: (16, 512) w+
     w_centered = latent - pca['mean'].to('cuda')
     lat_comp = pca['comp'].to('cuda')
     lat_std = pca['std'].to('cuda')
-    w_coord = torch.sum(w_centered[0].reshape(-1)*lat_comp[idx].reshape(-1)) / lat_std[idx]
+    w_coord = (torch.sum(w_centered[0].reshape(-1)*lat_comp[idx].reshape(-1))
+               / lat_std[idx])
     delta = (strength - w_coord)*lat_comp[idx]*lat_std[idx]
     return delta

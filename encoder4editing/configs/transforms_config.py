@@ -1,63 +1,64 @@
+"""Transformation configurations."""
+
 from abc import abstractmethod
 
-import torchvision.transforms as transforms
+from torchvision import transforms
 
 
-class TransformsConfig(object):
+class TransformsConfig():
+    """Base class for transformation configurations."""
 
-	def __init__(self, opts):
-		self.opts = opts
+    def __init__(self, opts):
+        self.opts = opts
 
-	@abstractmethod
-	def get_transforms(self):
-		pass
+    @abstractmethod
+    def get_transforms(self):
+        """Return the transforms."""
 
 
 class EncodeTransforms(TransformsConfig):
+    """Encode and normalize images."""
 
-	def __init__(self, opts):
-		super(EncodeTransforms, self).__init__(opts)
-
-	def get_transforms(self):
-		transforms_dict = {
-			'transform_gt_train': transforms.Compose([
-				transforms.Resize((256, 256)),
-				transforms.RandomHorizontalFlip(0.5),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-			'transform_source': None,
-			'transform_test': transforms.Compose([
-				transforms.Resize((256, 256)),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-			'transform_inference': transforms.Compose([
-				transforms.Resize((256, 256)),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
-		}
-		return transforms_dict
+    def get_transforms(self):
+        """Return the transforms."""
+        transforms_dict = {
+            'transform_gt_train': transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
+            'transform_source': None,
+            'transform_test': transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
+            'transform_inference': transforms.Compose([
+                transforms.Resize((256, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
+            }
+        return transforms_dict
 
 
 class CarsEncodeTransforms(TransformsConfig):
+    """Encode and normalize images from Cars dataset."""
 
-	def __init__(self, opts):
-		super(CarsEncodeTransforms, self).__init__(opts)
-
-	def get_transforms(self):
-		transforms_dict = {
-			'transform_gt_train': transforms.Compose([
-				transforms.Resize((192, 256)),
-				transforms.RandomHorizontalFlip(0.5),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-			'transform_source': None,
-			'transform_test': transforms.Compose([
-				transforms.Resize((192, 256)),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-			'transform_inference': transforms.Compose([
-				transforms.Resize((192, 256)),
-				transforms.ToTensor(),
-				transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
-		}
-		return transforms_dict
+    def get_transforms(self):
+        """Return the transforms."""
+        transforms_dict = {
+            'transform_gt_train': transforms.Compose([
+                transforms.Resize((192, 256)),
+                transforms.RandomHorizontalFlip(0.5),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
+            'transform_source': None,
+            'transform_test': transforms.Compose([
+                transforms.Resize((192, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
+            'transform_inference': transforms.Compose([
+                transforms.Resize((192, 256)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
+                }
+        return transforms_dict

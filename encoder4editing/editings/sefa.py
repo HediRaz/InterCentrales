@@ -1,11 +1,14 @@
+"""SEFA functions."""
+
 import numpy as np
 import torch
 from tqdm import tqdm
 
 
-def edit(generator, latents, indices, semantics=1, start_distance=-15.0, end_distance=15.0, num_samples=1, step=11):
-
-    layers, boundaries, values = factorize_weight(generator, indices)
+def edit(generator, latents, indices, semantics=1, start_distance=-15.0,
+         end_distance=15.0, num_samples=1, step=11):
+    """Edit latent vectors with SEFA."""
+    layers, boundaries, _ = factorize_weight(generator, indices)
     codes = latents.detach().cpu().numpy()  # (1,18,512)
 
     # Generate visualization pages.
@@ -18,15 +21,17 @@ def edit(generator, latents, indices, semantics=1, start_distance=-15.0, end_dis
         boundary = boundaries[sem_id:sem_id + 1]
         for sam_id in tqdm(range(num_sam), desc='Sample ', leave=False):
             code = codes[sam_id:sam_id + 1]
-            for col_id, d in enumerate(distances, start=1):
+            for dist in distances:
                 temp_code = code.copy()
-                temp_code[:, layers, :] += boundary * d
-                edited_latents.append(torch.from_numpy(temp_code).float().cuda())
+                temp_code[:, layers, :] += boundary * dist
+                edited_latents.append(
+                    torch.from_numpy(temp_code).float().cuda()
+                    )
     return torch.cat(edited_latents)
 
 
 def factorize_weight(g_ema, layers='all'):
-
+    """Factorize weight vectors."""
     weights = []
     if layers == 'all' or 0 in layers:
         weight = g_ema.conv1.conv.modulation.weight.T
@@ -35,7 +40,7 @@ def factorize_weight(g_ema, layers='all'):
     if layers == 'all':
         layers = list(range(g_ema.num_layers - 1))
     else:
-        layers = [l - 1 for l in layers if l != 0]
+        layers = [i_layer - 1 for i_layer in layers if i_layer != 0]
 
     for idx in layers:
         weight = g_ema.convs[idx].conv.modulation.weight.T
