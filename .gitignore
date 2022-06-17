@@ -5,3 +5,4 @@
 latents_celeba
 latents_group
 img_align_celeba
+.mypy_cache
