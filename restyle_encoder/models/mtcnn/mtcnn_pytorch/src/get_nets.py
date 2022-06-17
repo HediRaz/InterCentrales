@@ -1,10 +1,11 @@
+from collections import OrderedDict
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from collections import OrderedDict
-import numpy as np
-
 from configs.paths_config import model_paths
+
 PNET_PATH = model_paths["mtcnn_pnet"]
 ONET_PATH = model_paths["mtcnn_onet"]
 RNET_PATH = model_paths["mtcnn_rnet"]

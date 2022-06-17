@@ -1,24 +1,25 @@
 import os
+
 import matplotlib
 import matplotlib.pyplot as plt
+
 matplotlib.use('Agg')
 
 import torch
-from torch import nn, autograd
+import torch.nn.functional as F
+from configs import data_configs
+from criteria import id_loss, moco_loss
+from criteria.lpips.lpips import LPIPS
+from datasets.images_dataset import ImagesDataset
+from models.e4e import e4e
+from models.e4e_modules.discriminator import LatentCodesDiscriminator
+from models.e4e_modules.latent_codes_pool import LatentCodesPool
+from models.encoders.restyle_e4e_encoders import ProgressiveStage
+from torch import autograd, nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-import torch.nn.functional as F
-
-from utils import common, train_utils
-from criteria import id_loss, moco_loss
-from configs import data_configs
-from datasets.images_dataset import ImagesDataset
-from criteria.lpips.lpips import LPIPS
-from models.e4e import e4e
 from training.ranger import Ranger
-from models.e4e_modules.latent_codes_pool import LatentCodesPool
-from models.e4e_modules.discriminator import LatentCodesDiscriminator
-from models.encoders.restyle_e4e_encoders import ProgressiveStage
+from utils import common, train_utils
 
 
 class Coach:

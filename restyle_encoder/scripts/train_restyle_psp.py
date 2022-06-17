@@ -1,10 +1,10 @@
 """
 This file runs the main training/val loop
 """
-import os
 import json
-import sys
+import os
 import pprint
+import sys
 
 sys.path.append(".")
 sys.path.append("..")

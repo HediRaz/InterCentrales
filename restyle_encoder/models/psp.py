@@ -2,12 +2,12 @@
 This file defines the core research contribution
 """
 import math
-import torch
-from torch import nn
 
-from models.stylegan2.model import Generator
+import torch
 from configs.paths_config import model_paths
 from models.encoders import fpn_encoders, restyle_psp_encoders
+from models.stylegan2.model import Generator
+from torch import nn
 from utils.model_utils import RESNET_MAPPING
 
 

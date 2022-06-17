@@ -1,16 +1,16 @@
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "encoder4editing"))
 import argparse
 from argparse import Namespace
+
 import torch
 import torchvision.transforms as transforms
 
-from encoder4editing.models.psp import pSp
-
-from pca_ui import EditWindow
 from celeba_ui import CelebaEditWindow
-
+from encoder4editing.models.psp import pSp
+from pca_ui import EditWindow
 
 MODEL_PATH = "encoder4editing/pretrained_models/e4e_ffhq_encode.pt"
 resize_dims = (256, 256)

@@ -1,12 +1,13 @@
 import os
-from argparse import Namespace
-from tqdm import tqdm
+import sys
 import time
+from argparse import Namespace
+
 import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader
-import sys
+from tqdm import tqdm
 
 sys.path.append(".")
 sys.path.append("..")

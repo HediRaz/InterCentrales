@@ -1,9 +1,9 @@
+import dlib
 import numpy as np
 import PIL
 import PIL.Image
 import scipy
 import scipy.ndimage
-import dlib
 
 
 def get_landmark(filepath, predictor):

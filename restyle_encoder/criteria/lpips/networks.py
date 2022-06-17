@@ -1,12 +1,10 @@
-from typing import Sequence
-
 from itertools import chain
+from typing import Sequence
 
 import torch
 import torch.nn as nn
-from torchvision import models
-
 from criteria.lpips.utils import normalize_activation
+from torchvision import models
 
 
 def get_network(net_type: str):

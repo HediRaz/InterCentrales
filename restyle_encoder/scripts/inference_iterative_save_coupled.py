@@ -1,24 +1,25 @@
 import os
-from argparse import Namespace
-from tqdm import tqdm
+import sys
 import time
+from argparse import Namespace
+
 import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader
-import sys
+from tqdm import tqdm
 
 sys.path.append(".")
 sys.path.append("..")
 
 from configs import data_configs
 from datasets.inference_dataset import InferenceDataset
-from options.test_options import TestOptions
-from models.psp import pSp
 from models.e4e import e4e
-from utils.model_utils import ENCODER_TYPES
+from models.psp import pSp
+from options.test_options import TestOptions
 from utils.common import tensor2im
-from utils.inference_utils import run_on_batch, get_average_image
+from utils.inference_utils import get_average_image, run_on_batch
+from utils.model_utils import ENCODER_TYPES
 
 
 def run():

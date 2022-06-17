@@ -6,8 +6,9 @@ Created on Tue Jul 11 06:54:28 2017
 """
 
 import numpy as np
-from numpy.linalg import inv, norm, lstsq
+from numpy.linalg import inv, lstsq
 from numpy.linalg import matrix_rank as rank
+from numpy.linalg import norm
 
 
 class MatlabCp2tormException(Exception):

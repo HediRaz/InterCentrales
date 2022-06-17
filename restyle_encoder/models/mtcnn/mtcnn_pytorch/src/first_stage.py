@@ -1,8 +1,10 @@
-import torch
 import math
-from PIL import Image
+
 import numpy as np
-from .box_utils import nms, _preprocess
+import torch
+from PIL import Image
+
+from .box_utils import _preprocess, nms
 
 # device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 device = 'cuda:0'

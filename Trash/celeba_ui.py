@@ -1,11 +1,10 @@
 import os
-import pandas as pd
-import numpy as np
 import tkinter as tk
+
+import numpy as np
+import pandas as pd
 import torch
-
 from PIL import Image, ImageTk
-
 
 df = pd.read_csv("list_attr_celeba.csv", header=0)
 df["idx"] = pd.to_numeric(df["idx"])

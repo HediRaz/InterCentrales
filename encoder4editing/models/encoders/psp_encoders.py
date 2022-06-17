@@ -1,12 +1,13 @@
-from enum import Enum
 import math
+from enum import Enum
+
 import numpy as np
 import torch
-from torch import nn
-from torch.nn import Conv2d, BatchNorm2d, PReLU, Sequential, Module
-
-from models.encoders.helpers import get_blocks, bottleneck_IR, bottleneck_IR_SE, _upsample_add
+from models.encoders.helpers import (_upsample_add, bottleneck_IR,
+                                     bottleneck_IR_SE, get_blocks)
 from models.stylegan2.model import EqualLinear
+from torch import nn
+from torch.nn import BatchNorm2d, Conv2d, Module, PReLU, Sequential
 
 
 class ProgressiveStage(Enum):

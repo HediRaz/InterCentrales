@@ -1,19 +1,20 @@
 # Script to encode all CelebA dataset with the e4e encoder
 # All encodings are saved in ./latent_celeba
 import sys
+
 sys.path.append("./encoder4editing")
 
 import os
-import pandas as pd
 import pickle
-import numpy as np
-import torch
-from torchvision import transforms
 from argparse import Namespace
-from tqdm import tqdm
-from PIL import Image
 
+import numpy as np
+import pandas as pd
+import torch
 from models.psp import pSp_encoder
+from PIL import Image
+from torchvision import transforms
+from tqdm import tqdm
 
 print("Imports OK")
 

@@ -1,8 +1,7 @@
 import numpy as np
+from models.stylegan2.model import EqualLinear
 from torch import nn
 from torch.nn import Conv2d, Module
-
-from models.stylegan2.model import EqualLinear
 
 
 class GradualStyleBlock(Module):

@@ -1,5 +1,5 @@
-from torch.utils.data import Dataset
 from PIL import Image
+from torch.utils.data import Dataset
 from utils import data_utils
 
 

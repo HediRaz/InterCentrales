@@ -1,14 +1,13 @@
 import os
+import sys
+import time
 from argparse import Namespace
 
-from tqdm import tqdm
-import time
 import numpy as np
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader
-import sys
-
+from tqdm import tqdm
 from utils.inference_utils import get_average_image
 
 sys.path.append(".")
@@ -16,11 +15,11 @@ sys.path.append("..")
 
 from configs import data_configs
 from datasets.inference_dataset import InferenceDataset
-from options.test_options import TestOptions
-from models.psp import pSp
 from models.e4e import e4e
-from utils.model_utils import ENCODER_TYPES
+from models.psp import pSp
+from options.test_options import TestOptions
 from utils.common import tensor2im
+from utils.model_utils import ENCODER_TYPES
 
 
 def run():

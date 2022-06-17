@@ -1,7 +1,8 @@
-import torch
 import argparse
-from models.psp import pSp
+
+import torch
 from models.encoders.psp_encoders import Encoder4Editing
+from models.psp import pSp
 
 
 def setup_model(checkpoint_path, device='cuda'):

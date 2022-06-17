@@ -1,12 +1,13 @@
-from argparse import ArgumentParser
-import os
 import json
+import os
 import sys
-from tqdm import tqdm
+from argparse import ArgumentParser
+
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 sys.path.append(".")
 sys.path.append("..")

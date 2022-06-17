@@ -13,18 +13,18 @@ requirements:
 	# download face landmark model from:
 	# http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
 """
-from argparse import ArgumentParser
+import math
+import multiprocessing as mp
+import os
 import time
+from argparse import ArgumentParser
+
+import dlib
 import numpy as np
 import PIL
 import PIL.Image
-import os
 import scipy
 import scipy.ndimage
-import dlib
-import multiprocessing as mp
-import math
-
 from configs.paths_config import model_paths
 
 SHAPE_PREDICTOR_PATH = model_paths["shape_predictor"]

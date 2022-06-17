@@ -1,19 +1,19 @@
 import tempfile
+import time
 from argparse import Namespace
 from pathlib import Path
-import numpy as np
-import time
+
 import cog
 import dlib
 import imageio
+import numpy as np
 import torch
-from PIL import Image
-from torchvision import transforms
-
 from models.e4e import e4e
 from models.psp import pSp
-from scripts.align_faces_parallel import align_face
+from PIL import Image
 from scripts import encoder_bootstrapping_inference
+from scripts.align_faces_parallel import align_face
+from torchvision import transforms
 from utils.common import tensor2im
 from utils.inference_utils import run_on_batch
 

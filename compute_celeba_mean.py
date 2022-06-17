@@ -1,10 +1,10 @@
 # Perform operations over celaba encodings
+import itertools
 import os
+
 import numpy as np
 import pandas as pd
-import itertools
 from tqdm import tqdm
-
 
 df = pd.read_csv("list_attr_celeba.csv", header=0)
 df["idx"] = pd.to_numeric(df["idx"])

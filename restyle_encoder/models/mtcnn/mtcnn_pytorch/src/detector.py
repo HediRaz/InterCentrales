@@ -1,8 +1,9 @@
 import numpy as np
 import torch
-from .get_nets import PNet, RNet, ONet
-from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square
+
+from .box_utils import calibrate_box, convert_to_square, get_image_boxes, nms
 from .first_stage import run_first_stage
+from .get_nets import ONet, PNet, RNet
 
 
 def detect_faces(image, min_face_size=20.0,

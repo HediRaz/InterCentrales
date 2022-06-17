@@ -1,12 +1,11 @@
 import os
-import pandas as pd
-import numpy as np
 import tkinter as tk
-import torch
-
-from PIL import Image, ImageTk
 from functools import partial
 
+import numpy as np
+import pandas as pd
+import torch
+from PIL import Image, ImageTk
 
 
 def load_latents(filename):

@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 
+
 class TrainOptions:
 
     def __init__(self):

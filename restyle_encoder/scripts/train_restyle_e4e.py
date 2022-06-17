@@ -1,13 +1,14 @@
 """
 This file runs the main training/val loop
 """
-import os
 import json
 import math
-import sys
+import os
 import pprint
-import torch
+import sys
 from argparse import Namespace
+
+import torch
 
 sys.path.append(".")
 sys.path.append("..")

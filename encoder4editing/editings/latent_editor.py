@@ -1,5 +1,7 @@
-import torch
 import sys
+
+import torch
+
 sys.path.append(".")
 sys.path.append("..")
 from editings import ganspace, sefa

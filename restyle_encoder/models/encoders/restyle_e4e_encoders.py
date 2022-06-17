@@ -1,10 +1,10 @@
 from enum import Enum
-from torch import nn
-from torch.nn import Conv2d, BatchNorm2d, PReLU, Sequential, Module
-from torchvision.models import resnet34
 
-from models.encoders.helpers import get_blocks, bottleneck_IR, bottleneck_IR_SE
+from models.encoders.helpers import bottleneck_IR, bottleneck_IR_SE, get_blocks
 from models.encoders.map2style import GradualStyleBlock
+from torch import nn
+from torch.nn import BatchNorm2d, Conv2d, Module, PReLU, Sequential
+from torchvision.models import resnet34
 
 
 class ProgressiveStage(Enum):

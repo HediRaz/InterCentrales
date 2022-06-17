@@ -1,7 +1,7 @@
 import torch
-from torch import nn
 from configs.paths_config import model_paths
 from models.encoders.model_irse import Backbone
+from torch import nn
 
 
 class IDLoss(nn.Module):

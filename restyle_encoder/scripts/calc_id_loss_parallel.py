@@ -1,21 +1,23 @@
-from argparse import ArgumentParser
-import time
-import numpy as np
-import os
 import json
-import sys
-from PIL import Image
-import multiprocessing as mp
 import math
+import multiprocessing as mp
+import os
+import sys
+import time
+from argparse import ArgumentParser
+
+import numpy as np
 import torch
 import torchvision.transforms as trans
+from PIL import Image
 
 sys.path.append(".")
 sys.path.append("..")
 
-from models.mtcnn.mtcnn import MTCNN
-from models.encoders.model_irse import IR_101
 from configs.paths_config import model_paths
+from models.encoders.model_irse import IR_101
+from models.mtcnn.mtcnn import MTCNN
+
 CIRCULAR_FACE_PATH = model_paths['circular_face']
 
 

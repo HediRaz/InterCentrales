@@ -1,15 +1,15 @@
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "restyle_encoder"))
 from argparse import Namespace
+
 import torch
 import torchvision.transforms as transforms
 
-from restyle_encoder.models.psp import pSp
-
-from pca_ui import EditWindow
 from celeba_ui import CelebaEditWindow
-
+from pca_ui import EditWindow
+from restyle_encoder.models.psp import pSp
 
 MODEL_PATH = "restyle_encoder/pretrained_models/restyle_psp_ffhq_encode.pt"
 resize_dims = (256, 256)

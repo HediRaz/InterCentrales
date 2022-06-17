@@ -1,5 +1,7 @@
-from torch.nn import Linear, Conv2d, BatchNorm1d, BatchNorm2d, PReLU, Dropout, Sequential, Module
-from models.encoders.helpers import get_blocks, Flatten, bottleneck_IR, bottleneck_IR_SE, l2_norm
+from models.encoders.helpers import (Flatten, bottleneck_IR, bottleneck_IR_SE,
+                                     get_blocks, l2_norm)
+from torch.nn import (BatchNorm1d, BatchNorm2d, Conv2d, Dropout, Linear,
+                      Module, PReLU, Sequential)
 
 """
 Modified Backbone implementation from [TreB1eN](https://github.com/TreB1eN/InsightFace_Pytorch)

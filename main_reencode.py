@@ -1,22 +1,23 @@
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "encoder4editing"))
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "face_parsing"))
 import argparse
 from argparse import Namespace
 from functools import partial
 
-import torch
-import numpy as np
 import matplotlib
+import numpy as np
+import torch
+
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision import transforms
-from face_parsing import infer
+
 from encoder4editing.models.psp import pSp
-
-
+from face_parsing import infer
 
 parsing_net = infer.load_model()
 print("Parsing model sucessfully loaded!")
