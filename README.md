@@ -7,13 +7,13 @@ Make sure to install pretrained models needed to inference.
 A tested dockerfile is provided.
 Just run:
 ```bash
-docker build -t image_name
+docker build -t paribus:argocs
 xhost +
-docker run --rm -it --init --gpus=all --ipc=host -e DISPLAY=$DISPLAY -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" -w /workspace
+docker run --rm -it --init --gpus=all --ipc=host -e DISPLAY=$DISPLAY -v "/tmp/.X11-unix:/tmp/.X11-unix:rw" -w /workspace paribus:argocs
 ```
 
 ## Otherwise
-Just install pytorch and tkinter
+Just install pytorch, tkinter
 
 
 
@@ -38,12 +38,34 @@ python main_ui.py --custom
 ## Reencoding images
 Our second method to edit images was to edit the original images and then reencode them using e4e.
 
-A list of editing is implemented:
-- chubby
-- narrow eyes
-- ...
-
-Play yourself with that method editing an image and reencode it running:
+To visualize face parsing:
 ```bash
-python main_reencode.py --reencode /path/to/img
+python main_reencode.py --img_path /path/to/img --visualize_parsing
 ```
+
+A list of editing is implemented:
+ - hair color
+ - bags under eyes
+ - pointy nose
+ - chubby
+
+To see how are the results, each transformation is optional:
+```bash
+python main_reencode.py --img_path /path/to/img
+    --hair_color (optional) [blond, brown, black, gray]
+    --hair_color_brut (optional) [blond, brown, black, gray]
+    --bag_under_eyes (optional) [min, max]
+    --pointy_nose (optional) [min, max]
+    --chubby (optional)
+```
+
+Play yourself with that method editing an image and reencode it running the script without any transfomation:
+```bash
+python main_reencode.py --img_path /path/to/img
+```
+
+
+# References
+ - e4e:  [https://github.com/omertov/encoder4editing]
+ - restyle encoder: [https://github.com/yuval-alaluf/restyle-encoder]
+ - face parsing: [https://github.com/zllrunning/face-parsing.PyTorch]

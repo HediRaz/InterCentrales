@@ -3,13 +3,14 @@ import sys
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "encoder4editing"))
 sys.path.append(os.path.join(os.path.realpath(os.curdir), "face_parsing"))
 import argparse
+from argparse import Namespace
+from functools import partial
 
 import torch
 import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from argparse import Namespace
 from PIL import Image
 from torchvision import transforms
 from face_parsing import infer
@@ -72,19 +73,57 @@ def reencode(img):
     return decode(latents)
 
 
-def _reencode(img_path):
-    img = Image.open(img_path)
+def _reencode(img_path, transformations=[]):
+    matplotlib.use("TkAgg")
+    img = Image.open(img_path).resize((512, 512))
     plt.figure("Original Image")
     plt.imshow(img)
+
+    parsing = infer.compute_mask(img, parsing_net)
+    img = np.array(img)
+    for t in transformations:
+        img = t(img, parsing)
+    plt.figure("Original Image edited")
+    plt.imshow(img)
+
     plt.figure("Re-encoded Image")
-    plt.imshow(reencode(img))
+    plt.imshow(reencode(Image.fromarray(img)))
     plt.show()
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--reencode", type=str, help="Path to image to reencode")
+parser.add_argument("--img_path", type=str, help="Path to image to reencode")
+parser.add_argument("--visualize_parsing", action="store_true", help="Visualize face parsing")
+parser.add_argument("--hair_color", type=str, help="New hair color", choices=["blond", "brown", "black", "gray"])
+parser.add_argument("--hair_color_brut", type=str, help="New hair color abrut", choices=["blond", "brown", "black", "gray"])
+parser.add_argument("--bag_under_eyes", type=str, help="Bag under eyes", choices=["min", "max"])
+parser.add_argument("--pointy_nose", type=str, help="Pointy nose", choices=["min", "max"])
+parser.add_argument("--chubby", action="store_true", help="Chubby")
 args = parser.parse_args()
 
 
-if args.reencode:
-    _reencode(args.reencode)
+if args.visualize_parsing:
+    matplotlib.use("TkAgg")
+    img = Image.open(args.img_path).resize((512, 512))
+    plt.figure("Original Image")
+    plt.imshow(img)
+    plt.figure("Parsing")
+    infer.vis_parsing_maps(img, infer.compute_mask(img, parsing_net))
+
+transformations = []
+if args.hair_color:
+    transformations.append(partial(infer.change_hair_color_smooth, color=args.hair_color))
+if args.hair_color_brut:
+    transformations.append(partial(infer.change_hair_color_brut, color=args.hair_color_brut))
+if args.bag_under_eyes:
+    transformations .append(partial(infer.make_bags, max=args.bag_under_eyes == "max"))
+if args.pointy_nose:
+    if args.pointy_nose == "max":
+        transformations.append(infer.make_pointy_nose)
+    if args.pointy_nose == "min":
+        transformations.append(infer.make_flat_nose)
+if args.chubby:
+    transformations.append(infer.make_balls_around_mouth)
+
+
+_reencode(args.img_path, transformations)
