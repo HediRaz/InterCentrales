@@ -1,4 +1,3 @@
-**__pycache__**
 .vscode
 **pretrained_models**
 **shape_predictor**
@@ -6,3 +5,9 @@ latents_celeba
 latents_group
 img_align_celeba
 .mypy_cache
+*egg-info
+*.pyc
+**__pycache__**
+.env
+.vscode
+**.zip
