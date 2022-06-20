@@ -27,7 +27,7 @@ class ImgCanvas(tk.Canvas):
 
     def draw_image(self, img, original=False):
         """Draw image."""
-        img = ImageTk.PhotoImage(img.resize((self.width, self.height//2)))
+        img = ImageTk.PhotoImage(img.resize((self.width, self.height // 2)))
         if original:
             y = self.height // 2
             self.original_img = img
@@ -41,8 +41,10 @@ class ImgCanvas(tk.Canvas):
 class PathFrame(tk.Frame):
     """Path frame."""
 
-    def __init__(self, root, entry_callback, text="Enter image path",
-                 width=512, height=80):
+    def __init__(
+            self, root, entry_callback, text="Enter image path", width=512,
+            height=80
+            ):
         super().__init__(root, width=width, height=height)
         self.width = width
         self.height = height
@@ -67,9 +69,11 @@ class DeltaScaleFrame(tk.Frame):
     def __init__(self, root, edit_command):
         super().__init__(root)
         self.edit_command = edit_command
-        self.scale_bar = tk.Scale(self, orient='horizontal', from_=-2, to=2,
-                                  command=self.edit_command, resolution=0.02,
-                                  tickinterval=1, width=10, length=500)
+        self.scale_bar = tk.Scale(
+                self, orient='horizontal', from_=-2, to=2,
+                command=self.edit_command, resolution=0.02, tickinterval=1,
+                width=10, length=500
+                )
         self.scale_bar.pack(side=tk.TOP)
 
 
@@ -92,23 +96,28 @@ class CelebaEditWindow(tk.Tk):
         self.img_proj_label = []
         for i in range(4):
             self.img_canvas.append(ImgCanvas(self, width=256, height=512))
-            self.img_path_frame.append(PathFrame(self, partial(
-                self.img_path_callback, i=i
-                ), width=512))
+            self.img_path_frame.append(
+                    PathFrame(
+                            self, partial(self.img_path_callback, i=i),
+                            width=512
+                            )
+                    )
             self.img_proj_label.append(tk.Label(self, text="0"))
 
         self.latents_path_frame = []
         self.delta_scale = []
         for i in range(5):
             self.latents_path_frame.append(
-                PathFrame(self, partial(self.latents_path_callback, i=i),
-                          text="Enter latents path", width=512)
-                )
+                    PathFrame(
+                            self, partial(self.latents_path_callback, i=i),
+                            text="Enter latents path", width=512
+                            )
+                    )
             self.delta_scale.append(DeltaScaleFrame(self, self.infer_image))
 
         for i in range(4):
             self.img_canvas[i].place(x=512 + 256*i, y=0)
-            self.img_path_frame[i].place(x=0, y=30*i)
+            self.img_path_frame[i].place(x=0, y=30 * i)
             self.img_proj_label[i].place(x=600 + 256*i, y=550)
         for i in range(5):
             self.latents_path_frame[i].place(x=0, y=140 + 30*i)
@@ -116,8 +125,10 @@ class CelebaEditWindow(tk.Tk):
 
         self.latents = [None for _ in range(4)]
         self.edit_latents = [None for _ in range(4)]
-        self.direction = [torch.zeros((18, 512), dtype=torch.float32,
-                                      device="cuda") for _ in range(5)]
+        self.direction = [
+                torch.zeros((18, 512), dtype=torch.float32, device="cuda")
+                for _ in range(5)
+                ]
 
     def img_path_callback(self, i):
         """Image path callback."""
@@ -133,11 +144,11 @@ class CelebaEditWindow(tk.Tk):
         img = self.img_transforms(img_pil)
         with torch.no_grad():
             self.latents[i] = self.encoder(
-                img.unsqueeze(0).to("cuda").float()
-                )[0]
+                    img.unsqueeze(0).to("cuda").float()
+                    )[0]
             self.latents[i] = self.latents[i] + self.latents_avg.repeat(
-                self.latents[i].shape[0], 1, 1
-                )[:, 0, :]
+                    self.latents[i].shape[0], 1, 1
+                    )[:, 0, :]
         self.img_path_frame[i].result.config(text="Image loaded !")
 
     def latents_path_callback(self, i):
@@ -146,8 +157,8 @@ class CelebaEditWindow(tk.Tk):
         latents_path = os.path.normpath(latents_path)
         if not os.path.exists(latents_path):
             self.latents_path_frame[i].result.config(
-                text="Path does not exist"
-                )
+                    text="Path does not exist"
+                    )
             return
         direction = load_latents(latents_path)
         self.direction[i] = torch.tensor(direction, device="cuda").float()
@@ -156,8 +167,9 @@ class CelebaEditWindow(tk.Tk):
     def get_proj(self, j):
         """Get projection."""
         with torch.no_grad():
-            proj = torch.mean(torch.square(self.direction[0]
-                                           - self.edit_latents[j]))
+            proj = torch.mean(
+                    torch.square(self.direction[0] - self.edit_latents[j])
+                    )
             proj = proj.cpu().item()
         self.img_proj_label[j].config(text=str(proj))
 
@@ -166,27 +178,31 @@ class CelebaEditWindow(tk.Tk):
         coef = self.delta_scale[0].scale_bar.get()
         for j in range(4):
             if self.latents[j] is not None:
-                self.edit_latents[j] = (self.latents[j]
-                                        + coef*self.direction[0])
+                self.edit_latents[j] = (
+                        self.latents[j] + coef * self.direction[0]
+                        )
                 for i in range(1, 5):
-                    if (len(self.latents_path_frame[i].path.get()) > 0
-                        and self.latents_path_frame[i].path.get()
-                            != "Enter latents path"):
+                    if (
+                            len(self.latents_path_frame[i].path.get()) > 0
+                            and self.latents_path_frame[i].path.get() !=
+                            "Enter latents path"
+                            ):
                         self.edit_latents[j] += (
-                            self.delta_scale[i].scale_bar.get()
-                            * coef
-                            * self.direction[i]
-                            )
+                                self.delta_scale[i].scale_bar.get() * coef
+                                * self.direction[i]
+                                )
                 self.get_proj(j)
                 with torch.no_grad():
-                    edit_image = self.generator(
-                        [self.edit_latents[j].unsqueeze(0)],
-                        randomize_noise=False,
-                        input_is_latent=True
-                        )[0][0]
-                edit_image = (edit_image.detach().cpu().transpose(0, 1)
-                              .transpose(1, 2).numpy())
-                edit_image = ((edit_image + 1) / 2)
+                    edit_image = self.generator([
+                            self.edit_latents[j].unsqueeze(0)
+                            ], randomize_noise=False,
+                                                input_is_latent=True)[0][0]
+                edit_image = (
+                        edit_image.detach().cpu().transpose(0, 1).transpose(
+                                1, 2
+                                ).numpy()
+                        )
+                edit_image = ((edit_image+1) / 2)
                 edit_image[edit_image < 0] = 0
                 edit_image[edit_image > 1] = 1
                 edit_image = edit_image * 255
@@ -200,10 +216,10 @@ if __name__ == "__main__":
     from torchvision import transforms
     resize_dims = (256, 256)
     img_transforms = transforms.Compose([
-        transforms.Resize(resize_dims),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ])
+            transforms.Resize(resize_dims),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            ])
 
     def encoder(img):
         """Wrap function for encoder."""
@@ -213,6 +229,8 @@ if __name__ == "__main__":
         """Wrap function for generator."""
         return torch.rand((1, 1, 3, 256, 256), device="cuda")
 
-    app = CelebaEditWindow(img_transforms, encoder, generator,
-                           torch.rand((512,), device="cuda"))
+    app = CelebaEditWindow(
+            img_transforms, encoder, generator,
+            torch.rand((512, ), device="cuda")
+            )
     app.mainloop()

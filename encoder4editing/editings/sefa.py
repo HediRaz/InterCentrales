@@ -5,8 +5,10 @@ import torch
 from tqdm import tqdm
 
 
-def edit(generator, latents, indices, semantics=1, start_distance=-15.0,
-         end_distance=15.0, num_samples=1, step=11):
+def edit(
+        generator, latents, indices, semantics=1, start_distance=-15.0,
+        end_distance=15.0, num_samples=1, step=11
+        ):
     """Edit latent vectors with SEFA."""
     layers, boundaries, _ = factorize_weight(generator, indices)
     codes = latents.detach().cpu().numpy()  # (1,18,512)
@@ -25,8 +27,8 @@ def edit(generator, latents, indices, semantics=1, start_distance=-15.0,
                 temp_code = code.copy()
                 temp_code[:, layers, :] += boundary * dist
                 edited_latents.append(
-                    torch.from_numpy(temp_code).float().cuda()
-                    )
+                        torch.from_numpy(temp_code).float().cuda()
+                        )
     return torch.cat(edited_latents)
 
 

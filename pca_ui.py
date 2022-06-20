@@ -23,7 +23,7 @@ class ImgCanvas(tk.Canvas):
 
     def draw_image(self, img, original=False):
         """Draw image on canvas."""
-        img = ImageTk.PhotoImage(img.resize((self.width, self.height//2)))
+        img = ImageTk.PhotoImage(img.resize((self.width, self.height // 2)))
         if original:
             y = self.height // 2
             self.original_img = img
@@ -61,8 +61,10 @@ class PathFrame(tk.Frame):
 class PCAEditFrame(tk.Frame):
     """Frame for PCA editing."""
 
-    def __init__(self, root, edit_command, nb_layer=16, nb_pca=80,
-                 width=700, height=512):
+    def __init__(
+            self, root, edit_command, nb_layer=16, nb_pca=80, width=700,
+            height=512
+            ):
         super().__init__(root, width=width, height=height)
         self.width = width
         self.height = height
@@ -75,52 +77,59 @@ class PCAEditFrame(tk.Frame):
 
         for i in range(self.nb_pca):
             # List of dictionary
-            self.pca.append({"canvas": tk.Canvas(self, width=self.width,
-                                                 height=150)})
+            self.pca.append({
+                    "canvas": tk.Canvas(self, width=self.width, height=150)
+                    })
             # define instances
-            self.pca[i]["label"] = tk.Label(self.pca[i]["canvas"],
-                                            text=f"PCA {i}")
-            self.pca[i]["entry notes"] = tk.Entry(self.pca[i]["canvas"],
-                                                  width=30)
-            self.pca[i]["min var"] = tk.StringVar(self.pca[i]["canvas"],
-                                                  value="-2")
-            self.pca[i]["max var"] = tk.StringVar(self.pca[i]["canvas"],
-                                                  value="2")
+            self.pca[i]["label"] = tk.Label(
+                    self.pca[i]["canvas"], text=f"PCA {i}"
+                    )
+            self.pca[i]["entry notes"] = tk.Entry(
+                    self.pca[i]["canvas"], width=30
+                    )
+            self.pca[i]["min var"] = tk.StringVar(
+                    self.pca[i]["canvas"], value="-2"
+                    )
+            self.pca[i]["max var"] = tk.StringVar(
+                    self.pca[i]["canvas"], value="2"
+                    )
             self.pca[i]["min entry"] = tk.Entry(
-                self.pca[i]["canvas"], textvariable=self.pca[i]["min var"],
-                width=5
-                )
+                    self.pca[i]["canvas"], textvariable=self.pca[i]["min var"],
+                    width=5
+                    )
             self.pca[i]["max entry"] = tk.Entry(
-                self.pca[i]["canvas"], textvariable=self.pca[i]["max var"],
-                width=5
-                )
+                    self.pca[i]["canvas"], textvariable=self.pca[i]["max var"],
+                    width=5
+                    )
             self.pca[i]["scale"] = tk.Scale(
-                self.pca[i]["canvas"], orient='horizontal', from_=-2, to=2,
-                command=self.edit_command, resolution=0.02, tickinterval=10,
-                width=10, length=580
-                )
+                    self.pca[i]["canvas"], orient='horizontal', from_=-2, to=2,
+                    command=self.edit_command, resolution=0.02,
+                    tickinterval=10, width=10, length=580
+                    )
             self.pca[i]["checkboxes name"] = [
-                tk.Label(self.pca[i]["canvas"], text=str(j))
-                for j in range(self.nb_layer)
-                ]
+                    tk.Label(self.pca[i]["canvas"], text=str(j))
+                    for j in range(self.nb_layer)
+                    ]
             self.pca[i]["checkboxes var"] = [
-                tk.IntVar() for _ in range(self.nb_layer)
-                ]
+                    tk.IntVar() for _ in range(self.nb_layer)
+                    ]
             self.pca[i]["checkboxes"] = [
-                tk.Checkbutton(
-                    self.pca[i]["canvas"],
-                    variable=self.pca[i]["checkboxes var"][j],
-                    onvalue=1, offvalue=0, command=self.edit_command,
-                    width=1, height=1) for j in range(self.nb_layer)
-                ]
-            self.pca[i]["proj value"] = [tk.StringVar()
-                                         for _ in range(self.nb_layer)]
+                    tk.Checkbutton(
+                            self.pca[i]["canvas"],
+                            variable=self.pca[i]["checkboxes var"][j],
+                            onvalue=1, offvalue=0, command=self.edit_command,
+                            width=1, height=1
+                            ) for j in range(self.nb_layer)
+                    ]
+            self.pca[i]["proj value"] = [
+                    tk.StringVar() for _ in range(self.nb_layer)
+                    ]
             self.pca[i]["proj label"] = [
-                tk.Entry(self.pca[i]["canvas"],
-                         textvariable=self.pca[i]["proj value"][j],
-                         width=6)
-                for j in range(self.nb_layer)
-                ]
+                    tk.Entry(
+                            self.pca[i]["canvas"],
+                            textvariable=self.pca[i]["proj value"][j], width=6
+                            ) for j in range(self.nb_layer)
+                    ]
             # define comportment
             self.pca[i]["min entry"].bind("<Return>", self.minmax_callback)
             self.pca[i]["max entry"].bind("<Return>", self.minmax_callback)
@@ -132,7 +141,7 @@ class PCAEditFrame(tk.Frame):
             self.pca[i]["scale"].place(x=50, y=23)
             for j in range(self.nb_layer):
                 self.pca[i]["checkboxes name"][j].place(x=j*43 + 5, y=78)
-                self.pca[i]["checkboxes"][j].place(x=j*43, y=93)
+                self.pca[i]["checkboxes"][j].place(x=j * 43, y=93)
                 self.pca[i]["proj label"][j].place(x=j*43 + 5, y=120)
 
             self.pca[i]["canvas"].pack(side=tk.TOP)
@@ -142,8 +151,9 @@ class PCAEditFrame(tk.Frame):
         for i in range(self.nb_pca):
             mini = int(self.pca[i]["min var"].get())
             maxi = int(self.pca[i]["max var"].get())
-            self.pca[i]["scale"].config(from_=mini, to=maxi,
-                                        resolution=(maxi - mini) / 100)
+            self.pca[i]["scale"].config(
+                    from_=mini, to=maxi, resolution=(maxi-mini) / 100
+                    )
 
     def get_pca_directions(self):
         """Get PCA directions."""
@@ -151,8 +161,10 @@ class PCAEditFrame(tk.Frame):
         all_indexes = []
         for i in range(self.nb_pca):
             strength = self.pca[i]["scale"].get()
-            idx = [self.pca[i]["checkboxes var"][j].get()
-                   for j in range(self.nb_layer)]
+            idx = [
+                    self.pca[i]["checkboxes var"][j].get()
+                    for j in range(self.nb_layer)
+                    ]
             strengths.append(strength)
             all_indexes.append(idx)
         return strengths, all_indexes
@@ -164,16 +176,15 @@ class PCAEditCanvas(tk.Canvas):
     def __init__(self, root, edit_command, width=700, height=512):
         super().__init__(root, width=width, height=height)
         self.pca_frame = PCAEditFrame(self, edit_command)
-        self.scrollbar = tk.Scrollbar(root, orient="vertical",
-                                      command=self.yview)
+        self.scrollbar = tk.Scrollbar(
+                root, orient="vertical", command=self.yview
+                )
         self.config(yscrollcommand=self.scrollbar.set)
         self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.pca_frame.bind(
-            "<Configure>",
-            lambda e: self.configure(
-                scrollregion=self.bbox("all")
+                "<Configure>",
+                lambda e: self.configure(scrollregion=self.bbox("all"))
                 )
-            )
         self.create_window((0, 0), window=self.pca_frame, anchor="nw")
         self.pack(side=tk.TOP)
 
@@ -181,8 +192,9 @@ class PCAEditCanvas(tk.Canvas):
 class ConfigFrame(tk.Frame):
     """Frame for configuring the PCA."""
 
-    def __init__(self, root, path_callback, edit_command,
-                 width=700, height=512):
+    def __init__(
+            self, root, path_callback, edit_command, width=700, height=512
+            ):
         super().__init__(root)
         self.width = width
         self.height = height
@@ -196,8 +208,9 @@ class ConfigFrame(tk.Frame):
 class EditWindow(tk.Tk):
     """Window for edition."""
 
-    def __init__(self, img_transforms, encoder, generator, ganspace_pca,
-                 latents_avg):
+    def __init__(
+            self, img_transforms, encoder, generator, ganspace_pca, latents_avg
+            ):
         super().__init__()
         self.img_transforms = img_transforms
         self.encoder = encoder
@@ -213,8 +226,9 @@ class EditWindow(tk.Tk):
         self.title("Edit image")
         # Frames
         self.img_canvas = ImgCanvas(self)
-        self.config_frame = ConfigFrame(self, self.img_path_callback,
-                                        self.infer_image)
+        self.config_frame = ConfigFrame(
+                self, self.img_path_callback, self.infer_image
+                )
 
         self.edit_latents = None
         self.latents = None
@@ -225,8 +239,8 @@ class EditWindow(tk.Tk):
         img_path = os.path.normpath(img_path)
         if not os.path.exists(img_path):
             self.config_frame.path_frame.result.config(
-                text="Path does not exist"
-                )
+                    text="Path does not exist"
+                    )
             return
 
         img_pil = Image.open(img_path)
@@ -237,12 +251,12 @@ class EditWindow(tk.Tk):
             self.latents = self.encoder(img.unsqueeze(0).to("cuda"))[0]
             if self.latents.ndim == 2:
                 self.latents = self.latents + self.latents_avg.repeat(
-                    self.latents.shape[0], 1, 1
-                    )[:, 0, :]
+                        self.latents.shape[0], 1, 1
+                        )[:, 0, :]
             else:
                 self.latents = self.latents + self.latents_avg.repeat(
-                    self.latents.shape[0], 1, 1
-                    )
+                        self.latents.shape[0], 1, 1
+                        )
 
         self.infer_image()
 
@@ -253,17 +267,19 @@ class EditWindow(tk.Tk):
         lat_comp = self.ganspace_pca_comp
         lat_std = self.ganspace_pca_std
         w_coord = torch.sum(
-            w_centered[0].reshape(-1)*lat_comp[pca_idx].reshape(-1)
-            ) / lat_std[pca_idx]
-        delta = (strength - w_coord)*lat_comp[pca_idx]*lat_std[pca_idx]
+                w_centered[0].reshape(-1) * lat_comp[pca_idx].reshape(-1)
+                ) / lat_std[pca_idx]
+        delta = (strength-w_coord) * lat_comp[pca_idx] * lat_std[pca_idx]
         return delta
 
     def get_proj(self):
         """Get projection."""
         for i in range(self.nb_pca):
             for j in range(self.nb_layer):
-                proj = torch.dot(self.edit_latents[j].reshape(-1),
-                                 self.ganspace_pca_comp[i].reshape(-1))
+                proj = torch.dot(
+                        self.edit_latents[j].reshape(-1),
+                        self.ganspace_pca_comp[i].reshape(-1)
+                        )
                 self.config_frame.pca_canvas\
                     .pca_frame.pca[i]['proj value'][j].set(
                         f'{proj.item():.0e}'
@@ -272,10 +288,12 @@ class EditWindow(tk.Tk):
     def ganspace_edit(self):
         """Edit latents with GAN-space."""
         edit_latents = torch.clone(self.latents)
-        strengths, all_indexes = (self.config_frame.pca_canvas
-                                  .pca_frame.get_pca_directions())
-        for pca_idx, strength, indexes in zip(range(len(strengths)),
-                                              strengths, all_indexes):
+        strengths, all_indexes = (
+                self.config_frame.pca_canvas.pca_frame.get_pca_directions()
+                )
+        for pca_idx, strength, indexes in zip(
+                range(len(strengths)), strengths, all_indexes
+                ):
             delta = self.get_delta(pca_idx, strength)
             delta_padded = torch.zeros(self.latents.shape).to('cuda')
             for i, ind in enumerate(indexes):
@@ -291,9 +309,11 @@ class EditWindow(tk.Tk):
             edit_image = self.generator([self.edit_latents.unsqueeze(0)],
                                         randomize_noise=False,
                                         input_is_latent=True)[0][0]
-        edit_image = (edit_image.detach().cpu().transpose(0, 1)
-                      .transpose(1, 2).numpy())
-        edit_image = ((edit_image + 1) / 2)
+        edit_image = (
+                edit_image.detach().cpu().transpose(0, 1).transpose(1,
+                                                                    2).numpy()
+                )
+        edit_image = ((edit_image+1) / 2)
         edit_image[edit_image < 0] = 0
         edit_image[edit_image > 1] = 1
         edit_image = edit_image * 255
@@ -308,10 +328,10 @@ if __name__ == "__main__":
 
     resize_dims = (256, 256)
     img_transforms = transforms.Compose([
-        transforms.Resize(resize_dims),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ])
+            transforms.Resize(resize_dims),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            ])
 
     def encoder(img):
         """Return random encodage."""
@@ -323,6 +343,8 @@ if __name__ == "__main__":
 
     ganspace_pca = torch.load(GANSPACE_PCA_PATH)
 
-    app = EditWindow(img_transforms, encoder, generator, ganspace_pca,
-                     torch.rand((512,)))
+    app = EditWindow(
+            img_transforms, encoder, generator, ganspace_pca,
+            torch.rand((512, ))
+            )
     app.mainloop()

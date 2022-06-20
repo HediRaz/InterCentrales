@@ -5,9 +5,9 @@
 import os
 
 IMG_EXTENSIONS = [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP', '.tiff'
-    ]
+        '.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.ppm', '.PPM',
+        '.bmp', '.BMP', '.tiff'
+        ]
 
 
 def is_image_file(filename):

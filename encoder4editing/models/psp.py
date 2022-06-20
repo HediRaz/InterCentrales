@@ -14,8 +14,11 @@ def get_keys(dic, name):
     """Filter key in a dictionary."""
     if 'state_dict' in dic:
         dic = dic['state_dict']
-    d_filt = {key[len(name) + 1:]: val for key, val in dic.items()
-              if key[:len(name)] == name}
+    d_filt = {
+            key[len(name) + 1:]: val
+            for key, val in dic.items()
+            if key[:len(name)] == name
+            }
     return d_filt
 
 
@@ -28,8 +31,9 @@ class pSp(nn.Module):
         self.opts = opts
         # Define architecture
         self.encoder = self.set_encoder()
-        self.decoder = Generator(opts.stylegan_size, 512, 8,
-                                 channel_multiplier=2)
+        self.decoder = Generator(
+                opts.stylegan_size, 512, 8, channel_multiplier=2
+                )
         self.face_pool = torch.nn.AdaptiveAvgPool2d((256, 256))
         # Load weights if needed
         self.load_weights()
@@ -44,28 +48,34 @@ class pSp(nn.Module):
             encoder = psp_encoders.Encoder4Editing(50, 'ir_se', self.opts)
         elif self.opts.encoder_type == 'SingleStyleCodeEncoder':
             encoder = psp_encoders.BackboneEncoderUsingLastLayerIntoW(
-                50, 'ir_se', self.opts
-                )
+                    50, 'ir_se', self.opts
+                    )
         else:
-            raise Exception(f'{self.opts.encoder_type} '
-                            'is not a valid encoders')
+            raise Exception(
+                    f'{self.opts.encoder_type} '
+                    'is not a valid encoders'
+                    )
         return encoder
 
     def load_weights(self):
         """Load weights."""
         if self.opts.checkpoint_path is not None:
-            print('Loading e4e over the pSp framework from '
-                  'checkpoint: {self.opts.checkpoint_path}')
+            print(
+                    'Loading e4e over the pSp framework from '
+                    'checkpoint: {self.opts.checkpoint_path}'
+                    )
             ckpt = torch.load(self.opts.checkpoint_path, map_location='cpu')
-            self.encoder.load_state_dict(get_keys(ckpt, 'encoder'),
-                                         strict=True)
+            self.encoder.load_state_dict(
+                    get_keys(ckpt, 'encoder'), strict=True
+                    )
             self.encoder.eval()
             self.encoder.cuda()
             for model in list(ckpt["state_dict"].keys()):
                 if "encoder" in model:
                     ckpt["state_dict"].pop(model)
-            self.decoder.load_state_dict(get_keys(ckpt, 'decoder'),
-                                         strict=True)
+            self.decoder.load_state_dict(
+                    get_keys(ckpt, 'decoder'), strict=True
+                    )
             self.decoder.eval()
             self.decoder.cuda()
             ckpt.pop("state_dict")
@@ -79,9 +89,11 @@ class pSp(nn.Module):
             self.decoder.load_state_dict(ckpt['g_ema'], strict=False)
             self.__load_latent_avg(ckpt, repeat=self.encoder.style_count)
 
-    def forward(self, x, resize=True, latent_mask=None, input_code=False,
-                randomize_noise=True, inject_latent=None, return_latents=False,
-                alpha=None):
+    def forward(
+            self, x, resize=True, latent_mask=None, input_code=False,
+            randomize_noise=True, inject_latent=None, return_latents=False,
+            alpha=None
+            ):
         """Forward pass."""
         if input_code:
             codes = x
@@ -91,19 +103,21 @@ class pSp(nn.Module):
             if self.opts.start_from_latent_avg:
                 if codes.ndim == 2:
                     codes = codes + self.latent_avg.repeat(
-                        codes.shape[0], 1, 1
-                        )[:, 0, :]
+                            codes.shape[0], 1, 1
+                            )[:, 0, :]
                 else:
                     codes = codes + self.latent_avg.repeat(
-                        codes.shape[0], 1, 1
-                        )
+                            codes.shape[0], 1, 1
+                            )
 
         if latent_mask is not None:
             for i in latent_mask:
                 if inject_latent is not None:
                     if alpha is not None:
-                        codes[:, i] = (alpha * inject_latent[:, i]
-                                       + (1 - alpha) * codes[:, i])
+                        codes[:, i] = (
+                                alpha * inject_latent[:, i] +
+                                (1-alpha) * codes[:, i]
+                                )
                     else:
                         codes[:, i] = inject_latent[:, i]
                 else:
@@ -154,17 +168,21 @@ class pSp_encoder(nn.Module):
             encoder = psp_encoders.Encoder4Editing(50, 'ir_se', self.opts)
         elif self.opts.encoder_type == 'SingleStyleCodeEncoder':
             encoder = psp_encoders.BackboneEncoderUsingLastLayerIntoW(
-                50, 'ir_se', self.opts
-                )
+                    50, 'ir_se', self.opts
+                    )
         else:
-            raise Exception(f'{self.opts.encoder_type} '
-                            'is not a valid encoders')
+            raise Exception(
+                    f'{self.opts.encoder_type} '
+                    'is not a valid encoders'
+                    )
         return encoder
 
     def load_weights(self):
         """Load weights."""
-        print('Loading e4e over the pSp framework from checkpoint: '
-              f'{self.opts.checkpoint_path}')
+        print(
+                'Loading e4e over the pSp framework from checkpoint: '
+                f'{self.opts.checkpoint_path}'
+                )
         ckpt = torch.load(self.opts.checkpoint_path, map_location='cpu')
         for model in list(ckpt["state_dict"].keys()):
             if "decoder" in model:
@@ -184,9 +202,8 @@ class pSp_encoder(nn.Module):
         # normalize with respect to the center of an average face
         if self.opts.start_from_latent_avg:
             if codes.ndim == 2:
-                codes = codes + self.latent_avg.repeat(
-                    codes.shape[0], 1, 1
-                    )[:, 0, :]
+                codes = codes + self.latent_avg.repeat(codes.shape[0], 1,
+                                                       1)[:, 0, :]
             else:
                 codes = codes + self.latent_avg.repeat(codes.shape[0], 1, 1)
 

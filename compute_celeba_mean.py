@@ -24,12 +24,14 @@ def get_att_df(dataframe, att_name, yes=True):
 
 def load_latents(filename, latents_folder="latents_celeba"):
     """Load latent vectors from file."""
-    latents_path = os.path.join(latents_folder, filename[:-3]+"npy")
+    latents_path = os.path.join(latents_folder, filename[:-3] + "npy")
     return np.load(latents_path)
 
 
-def get_latents_mean(dataframe, latents_folder="latents_celeba",
-                     return_count=False, **kwargs):
+def get_latents_mean(
+        dataframe, latents_folder="latents_celeba", return_count=False,
+        **kwargs
+        ):
     """Compute mean of encodings of images with specific attributes.
 
     Parameters
@@ -58,8 +60,13 @@ def get_latents_mean(dataframe, latents_folder="latents_celeba",
 
     mean = np.zeros((18, 512), dtype=np.float32)
     for file in dataframe["filename"]:
-        mean += (load_latents(file, latents_folder=latents_folder)
-                 / len(dataframe["filename"]))
+        mean += (
+                load_latents(file, latents_folder=latents_folder)
+                / len(dataframe["filename"])
+                )
+        print("""
+coucou
+              """)
     if return_count:
         return mean, len(dataframe["filename"])
     return mean
@@ -107,7 +114,7 @@ def all_change():
         l_1 = get_latents_mean(dataframe, **{att: False})
         l_2 = get_latents_mean(dataframe, **{att: True})
         delta = l_2 - l_1
-        np.save(os.path.join(dest_folder, att+".npy"), delta)
+        np.save(os.path.join(dest_folder, att + ".npy"), delta)
 
 
 if __name__ == "__main__":
@@ -118,10 +125,11 @@ if __name__ == "__main__":
     print(f"There is {TOTAL_IMG} in the dataset")
 
     DEST_FOLDER = "latents_group/all_change"
-    compet_attributes = ["Pale_Skin", "Young", "Male", "Bangs", "Black_Hair",
-                         "Blond_Hair", "Brown_Hair", "Gray_Hair",
-                         "Double_Chin", "Straight_Hair", "Wavy_Hair", "Bald",
-                         "Bags_Under_Eyes", "Chubby"]
+    compet_attributes = [
+            "Pale_Skin", "Young", "Male", "Bangs", "Black_Hair", "Blond_Hair",
+            "Brown_Hair", "Gray_Hair", "Double_Chin", "Straight_Hair",
+            "Wavy_Hair", "Bald", "Bags_Under_Eyes", "Chubby"
+            ]
 
     for att in tqdm(ATTRIBUTES[6:]):
         if att in compet_attributes:
@@ -129,4 +137,4 @@ if __name__ == "__main__":
         l1 = get_latents_mean(dataframe, **{att: False})
         l2 = get_latents_mean(dataframe, **{att: True})
         delta = l2 - l1
-        np.save(os.path.join(DEST_FOLDER, att+".npy"), delta)
+        np.save(os.path.join(DEST_FOLDER, att + ".npy"), delta)

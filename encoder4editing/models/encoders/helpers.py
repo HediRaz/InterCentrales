@@ -30,37 +30,38 @@ class Bottleneck(namedtuple('Block', ['in_channel', 'depth', 'stride'])):
 
 def get_block(in_channel, depth, num_units, stride=2):
     """Get bottleneck block."""
-    return [Bottleneck(in_channel, depth, stride)] + [
-        Bottleneck(depth, depth, 1) for _ in range(num_units - 1)
-        ]
+    return [Bottleneck(in_channel, depth, stride)
+            ] + [Bottleneck(depth, depth, 1) for _ in range(num_units - 1)]
 
 
 def get_blocks(num_layers):
     """Get multi-blocks of bottleneck.."""
     if num_layers == 50:
         blocks = [
-            get_block(in_channel=64, depth=64, num_units=3),
-            get_block(in_channel=64, depth=128, num_units=4),
-            get_block(in_channel=128, depth=256, num_units=14),
-            get_block(in_channel=256, depth=512, num_units=3)
-            ]
+                get_block(in_channel=64, depth=64, num_units=3),
+                get_block(in_channel=64, depth=128, num_units=4),
+                get_block(in_channel=128, depth=256, num_units=14),
+                get_block(in_channel=256, depth=512, num_units=3)
+                ]
     elif num_layers == 100:
         blocks = [
-            get_block(in_channel=64, depth=64, num_units=3),
-            get_block(in_channel=64, depth=128, num_units=13),
-            get_block(in_channel=128, depth=256, num_units=30),
-            get_block(in_channel=256, depth=512, num_units=3)
-            ]
+                get_block(in_channel=64, depth=64, num_units=3),
+                get_block(in_channel=64, depth=128, num_units=13),
+                get_block(in_channel=128, depth=256, num_units=30),
+                get_block(in_channel=256, depth=512, num_units=3)
+                ]
     elif num_layers == 152:
         blocks = [
-            get_block(in_channel=64, depth=64, num_units=3),
-            get_block(in_channel=64, depth=128, num_units=8),
-            get_block(in_channel=128, depth=256, num_units=36),
-            get_block(in_channel=256, depth=512, num_units=3)
-            ]
+                get_block(in_channel=64, depth=64, num_units=3),
+                get_block(in_channel=64, depth=128, num_units=8),
+                get_block(in_channel=128, depth=256, num_units=36),
+                get_block(in_channel=256, depth=512, num_units=3)
+                ]
     else:
-        raise ValueError(f"Invalid number of layers: {num_layers}. "
-                         "Must be one of [50, 100, 152]")
+        raise ValueError(
+                f"Invalid number of layers: {num_layers}. "
+                "Must be one of [50, 100, 152]"
+                )
     return blocks
 
 
@@ -70,11 +71,15 @@ class SEModule(Module):
     def __init__(self, channels, reduction):
         super().__init__()
         self.avg_pool = AdaptiveAvgPool2d(1)
-        self.fc1 = Conv2d(channels, channels // reduction, kernel_size=1,
-                          padding=0, bias=False)
+        self.fc1 = Conv2d(
+                channels, channels // reduction, kernel_size=1, padding=0,
+                bias=False
+                )
         self.relu = ReLU(inplace=True)
-        self.fc2 = Conv2d(channels // reduction, channels, kernel_size=1,
-                          padding=0, bias=False)
+        self.fc2 = Conv2d(
+                channels // reduction, channels, kernel_size=1, padding=0,
+                bias=False
+                )
         self.sigmoid = Sigmoid()
 
     def forward(self, x):
@@ -97,16 +102,16 @@ class bottleneck_IR(Module):
             self.shortcut_layer = MaxPool2d(1, stride)
         else:
             self.shortcut_layer = Sequential(
-                Conv2d(in_channel, depth, (1, 1), stride, bias=False),
+                    Conv2d(in_channel, depth, (1, 1), stride, bias=False),
+                    BatchNorm2d(depth)
+                    )
+        self.res_layer = Sequential(
+                BatchNorm2d(in_channel),
+                Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
+                PReLU(depth),
+                Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
                 BatchNorm2d(depth)
                 )
-        self.res_layer = Sequential(
-            BatchNorm2d(in_channel),
-            Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
-            PReLU(depth),
-            Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
-            BatchNorm2d(depth)
-            )
 
     def forward(self, x):
         """Forward pass."""
@@ -124,17 +129,16 @@ class bottleneck_IR_SE(Module):
             self.shortcut_layer = MaxPool2d(1, stride)
         else:
             self.shortcut_layer = Sequential(
-                Conv2d(in_channel, depth, (1, 1), stride, bias=False),
-                BatchNorm2d(depth)
-                )
+                    Conv2d(in_channel, depth, (1, 1), stride, bias=False),
+                    BatchNorm2d(depth)
+                    )
         self.res_layer = Sequential(
-            BatchNorm2d(in_channel),
-            Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
-            PReLU(depth),
-            Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
-            BatchNorm2d(depth),
-            SEModule(depth, 16)
-            )
+                BatchNorm2d(in_channel),
+                Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
+                PReLU(depth),
+                Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
+                BatchNorm2d(depth), SEModule(depth, 16)
+                )
 
     def forward(self, x):
         """Forward pass."""
@@ -170,5 +174,6 @@ def _upsample_add(x, y):
     So we choose bilinear upsample which supports arbitrary output sizes.
     """
     _, _, height, weight = y.size()
-    return F.interpolate(x, size=(height, weight), mode='bilinear',
-                         align_corners=True) + y
+    return F.interpolate(
+            x, size=(height, weight), mode='bilinear', align_corners=True
+            ) + y

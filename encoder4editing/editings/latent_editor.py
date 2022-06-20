@@ -20,18 +20,19 @@ class LatentEditor():
         edit_latents = ganspace.edit(latent, ganspace_pca, edit_directions)
         return self._latents_to_image(edit_latents)
 
-    def apply_interfacegan(self, latent, direction, factor=1,
-                           factor_range=None):
+    def apply_interfacegan(
+            self, latent, direction, factor=1, factor_range=None
+            ):
         """Apply interface GAN."""
         edit_latents = []
         # Apply a range of editing factors. for example, (-5, 5)
         if factor_range is not None:
             for fac in range(*factor_range):
-                edit_latent = latent + fac * direction
+                edit_latent = latent + fac*direction
                 edit_latents.append(edit_latent)
             edit_latents = torch.cat(edit_latents)
         else:
-            edit_latents = latent + factor * direction
+            edit_latents = latent + factor*direction
         return self._latents_to_image(edit_latents)
 
     def apply_sefa(self, latent, indices=(2, 3, 4, 5), **kwargs):

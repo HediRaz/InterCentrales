@@ -22,21 +22,23 @@ class EncodeTransforms(TransformsConfig):
     def get_transforms(self):
         """Return the transforms."""
         transforms_dict = {
-            'transform_gt_train': transforms.Compose([
-                transforms.Resize((256, 256)),
-                transforms.RandomHorizontalFlip(0.5),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-            'transform_source': None,
-            'transform_test': transforms.Compose([
-                transforms.Resize((256, 256)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-            'transform_inference': transforms.Compose([
-                transforms.Resize((256, 256)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
-            }
+                'transform_gt_train': transforms.Compose([
+                        transforms.Resize((256, 256)),
+                        transforms.RandomHorizontalFlip(0.5),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+                        ]), 'transform_source': None,
+                'transform_test': transforms.Compose([
+                        transforms.Resize((256, 256)),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+                        ]), 'transform_inference': transforms.Compose([
+                                transforms.Resize((256, 256)),
+                                transforms.ToTensor(),
+                                transforms.Normalize([0.5, 0.5, 0.5],
+                                                     [0.5, 0.5, 0.5])
+                                ])
+                }
         return transforms_dict
 
 
@@ -46,19 +48,21 @@ class CarsEncodeTransforms(TransformsConfig):
     def get_transforms(self):
         """Return the transforms."""
         transforms_dict = {
-            'transform_gt_train': transforms.Compose([
-                transforms.Resize((192, 256)),
-                transforms.RandomHorizontalFlip(0.5),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-            'transform_source': None,
-            'transform_test': transforms.Compose([
-                transforms.Resize((192, 256)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])]),
-            'transform_inference': transforms.Compose([
-                transforms.Resize((192, 256)),
-                transforms.ToTensor(),
-                transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
+                'transform_gt_train': transforms.Compose([
+                        transforms.Resize((192, 256)),
+                        transforms.RandomHorizontalFlip(0.5),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+                        ]), 'transform_source': None,
+                'transform_test': transforms.Compose([
+                        transforms.Resize((192, 256)),
+                        transforms.ToTensor(),
+                        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+                        ]), 'transform_inference': transforms.Compose([
+                                transforms.Resize((192, 256)),
+                                transforms.ToTensor(),
+                                transforms.Normalize([0.5, 0.5, 0.5],
+                                                     [0.5, 0.5, 0.5])
+                                ])
                 }
         return transforms_dict

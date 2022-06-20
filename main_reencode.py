@@ -18,14 +18,14 @@ matplotlib.use("TkAgg")
 parsing_net = infer.load_model()
 print("Parsing model sucessfully loaded!")
 
-
 MODEL_PATH = "encoder4editing/pretrained_models/e4e_ffhq_encode.pt"
 resize_dims = (256, 256)
 # Setup required image transformations
 img_transforms = transforms.Compose([
-    transforms.Resize(resize_dims),
-    transforms.ToTensor(),
-    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
+        transforms.Resize(resize_dims),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+        ])
 
 ckpt = torch.load(MODEL_PATH, map_location='cpu')
 for u in list(ckpt.keys()):
@@ -55,8 +55,11 @@ def encode(img):
     latents : torch.Tensor
         Encoded image.
     """
-    latents = (generator_net.encoder(img_transforms(img)
-                                     .unsqueeze(0).to("cuda").float())[0])
+    latents = (
+            generator_net.encoder(
+                    img_transforms(img).unsqueeze(0).to("cuda").float()
+                    )[0]
+            )
     latents += generator_net.latent_avg
     return latents
 
@@ -77,9 +80,10 @@ def decode(latents):
     edit_image = generator_net.decoder([latents.unsqueeze(0)],
                                        randomize_noise=False,
                                        input_is_latent=True)[0][0]
-    edit_image = (edit_image.detach().cpu().transpose(0, 1)
-                  .transpose(1, 2).numpy())
-    edit_image = ((edit_image + 1) / 2)
+    edit_image = (
+            edit_image.detach().cpu().transpose(0, 1).transpose(1, 2).numpy()
+            )
+    edit_image = ((edit_image+1) / 2)
     edit_image[edit_image < 0] = 0
     edit_image[edit_image > 1] = 1
     edit_image = edit_image * 255
@@ -119,19 +123,29 @@ def _reencode(img_path, transformations=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--img_path", type=str,
-                        help="Path to image to reencode")
-    parser.add_argument("--visualize_parsing", action="store_true",
-                        help="Visualize face parsing")
-    parser.add_argument("--hair_color", type=str, help="New hair color",
-                        choices=["blond", "brown", "black", "gray"])
-    parser.add_argument("--hair_color_brut", type=str,
-                        help="New hair color abrut",
-                        choices=["blond", "brown", "black", "gray"])
-    parser.add_argument("--bag_under_eyes", type=str, help="Bag under eyes",
-                        choices=["min", "max"])
-    parser.add_argument("--pointy_nose", type=str, help="Pointy nose",
-                        choices=["min", "max"])
+    parser.add_argument(
+            "--img_path", type=str, help="Path to image to reencode"
+            )
+    parser.add_argument(
+            "--visualize_parsing", action="store_true",
+            help="Visualize face parsing"
+            )
+    parser.add_argument(
+            "--hair_color", type=str, help="New hair color",
+            choices=["blond", "brown", "black", "gray"]
+            )
+    parser.add_argument(
+            "--hair_color_brut", type=str, help="New hair color abrut",
+            choices=["blond", "brown", "black", "gray"]
+            )
+    parser.add_argument(
+            "--bag_under_eyes", type=str, help="Bag under eyes",
+            choices=["min", "max"]
+            )
+    parser.add_argument(
+            "--pointy_nose", type=str, help="Pointy nose",
+            choices=["min", "max"]
+            )
     parser.add_argument("--chubby", action="store_true", help="Chubby")
     args = parser.parse_args()
 
@@ -145,14 +159,20 @@ if __name__ == '__main__':
 
     transformations = []
     if args.hair_color:
-        transformations.append(partial(infer.change_hair_color_smooth,
-                                       color=args.hair_color))
+        transformations.append(
+                partial(infer.change_hair_color_smooth, color=args.hair_color)
+                )
     if args.hair_color_brut:
-        transformations.append(partial(infer.change_hair_color_brut,
-                                       color=args.hair_color_brut))
+        transformations.append(
+                partial(
+                        infer.change_hair_color_brut,
+                        color=args.hair_color_brut
+                        )
+                )
     if args.bag_under_eyes:
-        transformations .append(partial(infer.make_bags,
-                                        max=args.bag_under_eyes == "max"))
+        transformations.append(
+                partial(infer.make_bags, max=args.bag_under_eyes == "max")
+                )
     if args.pointy_nose:
         if args.pointy_nose == "max":
             transformations.append(infer.make_pointy_nose)

@@ -27,9 +27,11 @@ def load_e4e_standalone(checkpoint_path, device='cuda'):
     ckpt = torch.load(checkpoint_path, map_location='cpu')
     opts = argparse.Namespace(**ckpt['opts'])
     e4e = Encoder4Editing(50, 'ir_se', opts)
-    e4e_dict = {key.replace('encoder.', ''): val
-                for key, val in ckpt['state_dict'].items()
-                if key.startswith('encoder.')}
+    e4e_dict = {
+            key.replace('encoder.', ''): val
+            for key, val in ckpt['state_dict'].items()
+            if key.startswith('encoder.')
+            }
     e4e.load_state_dict(e4e_dict)
     e4e.eval()
     e4e = e4e.to(device)

@@ -17,9 +17,10 @@ if __name__ == '__main__':
 
     # Setup required image transformations
     img_transforms = transforms.Compose([
-        transforms.Resize(resize_dims),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])])
+            transforms.Resize(resize_dims),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            ])
 
     ckpt = torch.load(MODEL_PATH, map_location='cpu')
     for u in list(ckpt.keys()):
@@ -37,10 +38,10 @@ if __name__ == '__main__':
 
     resize_dims = (256, 256)
     img_transforms = transforms.Compose([
-        transforms.Resize(resize_dims),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ])
+            transforms.Resize(resize_dims),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            ])
     encoder = net.encoder
     # encoder = lambda img: torch.rand((1, 16, 1, 512), device="cuda")
     # def generator(latents, randomize_noise, input_is_latent):
@@ -48,23 +49,30 @@ if __name__ == '__main__':
     generator = net.decoder
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--pca", action="store_true",
-                        help="Run UI that uses PCA vectors")
-    parser.add_argument("--custom", action="store_true",
-                        help="Run UI that uses custom vectors")
+    parser.add_argument(
+            "--pca", action="store_true", help="Run UI that uses PCA vectors"
+            )
+    parser.add_argument(
+            "--custom", action="store_true",
+            help="Run UI that uses custom vectors"
+            )
     args = parser.parse_args()
 
     if args.pca:
-        ganspace_pca = torch.load('encoder4editing/editings/ganspace_pca/'
-                                  'ffhq_pca.pt')
+        ganspace_pca = torch.load(
+                'encoder4editing/editings/ganspace_pca/'
+                'ffhq_pca.pt'
+                )
         latents_avg = net.latent_avg
-        app_pca = EditWindow(img_transforms, encoder, generator, ganspace_pca,
-                             latents_avg)
+        app_pca = EditWindow(
+                img_transforms, encoder, generator, ganspace_pca, latents_avg
+                )
         app_pca.mainloop()
 
     elif args.custom:
-        app_custom = CelebaEditWindow(img_transforms, encoder, generator,
-                                      net.latent_avg)
+        app_custom = CelebaEditWindow(
+                img_transforms, encoder, generator, net.latent_avg
+                )
         app_custom.mainloop()
 
     else:

@@ -31,10 +31,10 @@ if __name__ == '__main__':
     net.cuda()
 
     img_transforms = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
-        ])
+            transforms.Resize((256, 256)),
+            transforms.ToTensor(),
+            transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+            ])
 
     df = pd.read_csv("list_attr_celeba.csv", header=0)
     df["idx"] = pd.to_numeric(df["idx"])
@@ -45,13 +45,19 @@ if __name__ == '__main__':
     for att in ATTRIBUTES:
         df[att] = df[att] == 1
 
-    for i in tqdm(range(len(os.listdir("latents_celeba")),
-                        len(os.listdir("img_align_celeba")))):
+    for i in tqdm(
+            range(
+                    len(os.listdir("latents_celeba")),
+                    len(os.listdir("img_align_celeba"))
+                    )
+            ):
         img_filename = df.loc[i]["filename"]
         img_path = os.path.join("img_align_celeba", img_filename)
         with Image.open(img_path) as img:
             img = img_transforms(img)
             with torch.no_grad():
                 latents = net(img.unsqueeze(0).to("cuda"))[0].cpu().numpy()
-            np.save(os.path.join("latents_celeba", img_filename[:-3]+"npy"),
-                    latents)
+            np.save(
+                    os.path.join("latents_celeba", img_filename[:-3] + "npy"),
+                    latents
+                    )
