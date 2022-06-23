@@ -128,7 +128,7 @@ class CelebaEditWindow(tk.Tk):
 
     def get_proj(self, j):
         with torch.no_grad():
-            p = torch.mean(torch.square(self.direction[0] - self.edit_latents[j]))
+            p = torch.sum(torch.square(self.direction[0] - self.edit_latents[j])) / torch.sum(self.edit_latents[j] * self.edit_latents[j])
             p = p.cpu().item()
         self.img_proj_label[j].config(text=str(p))
 

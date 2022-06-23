@@ -26,13 +26,9 @@ for u in list(ckpt.keys()):
     if "opts" not in u:
         ckpt.pop(u)
 opts = ckpt['opts']
-# pprint.pprint(opts)  # Display full options used
-# update the training options
 opts['checkpoint_path'] = MODEL_PATH
 opts= Namespace(**opts)
 net = pSp(opts)
-# net.eval()
-# net.cuda()
 print('Model successfully loaded!')
 
 
@@ -43,9 +39,6 @@ img_transforms = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 encoder = net.encoder
-# encoder = lambda img: torch.rand((1, 16, 1, 512), device="cuda")
-# def generator(latents, randomize_noise, input_is_latent):
-#     return torch.rand((1, 1, 3, 256, 256), device="cuda")
 generator = net.decoder
 
 
