@@ -5,3 +5,5 @@
 latents_celeba
 latents_group
 img_align_celeba
+face_parsing/res/cp/79999_iter.pth
+face_parsing/resnet18**

@@ -45,10 +45,10 @@ print('e4e model successfully loaded!')
 
 # Hyperparameters for transformations
 # The stored values are the path to the vectors and the required projection value
-SEX = {"vector_path": "vectors_editing/custom/sex.npy", "female": 1.2, "male": 0.9}
+SEX = {"vector_path": "vectors_editing/custom/sex.npy", "female": -1, "male": 1.2}
 BALD = {"vector_path": "vectors_editing/custom/from_bald.npy", "bald": 2, "hairy": -1.5}
-AGE = {"vector_path": "vectors_editing/custom/interface_age.npy", "young": 1.1, "adult": 0.99, "old": 0.96}
-CHUBBY = {"vector_path": "vectors_editing/custom/chubby.npy", "big": 0.9, "thin": 1.3}
+AGE = {"vector_path": "vectors_editing/custom/interface_age.npy", "young": -20, "adult": 5, "old": 50}
+CHUBBY = {"vector_path": "vectors_editing/custom/chubby.npy", "big": 1.2, "thin": 0.5}
 
 def encode(img):
     """ img = PIL Image """
@@ -74,7 +74,8 @@ def decode(latents):
 def apply_projection(latents, vector_path, proj_value):
     vector = np.load(vector_path)
     vector = torch.tensor(vector, dtype=latents.dtype, device=latents.device)
-    latents = latents + ((proj_value - torch.sum(latents*vector)) / torch.sum(latents*latents))
+    alpha = proj_value - (torch.sum(latents*vector)/torch.sum(vector*vector))
+    latents += alpha * vector / 18
     return latents
 
 
@@ -83,6 +84,7 @@ def apply_translation(latents, vector_path, scroll_value):
     vector = torch.tensor(vector, dtype=latents.dtype, device=latents.device)
     latents = latents + scroll_value * vector
     return latents
+
 
 def reencode(img):
     """ img = PIL Image """
