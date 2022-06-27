@@ -218,7 +218,7 @@ def process_img(img_path, destination_folder, list_of_transformations):
             try:
                 edited_img = IMG_TRANSFORMATIONS_INVERSE[t]["function"](np.array(img), parsing)
                 edited_latents = encode(Image.fromarray(edited_img))
-                edited_img = decode(latents - IMG_TRANSFORMATIONS_INVERSE[t]["value"]*(latents - edited_latents))
+                edited_img = decode(latents + IMG_TRANSFORMATIONS_INVERSE[t]["value"]*(latents - edited_latents))
                 edited_img.save(os.path.join(destination_folder, t+".png"))
             except Exception:
                 print("WARNING: Error while processing image:", img_path, "with transformation:", t)
