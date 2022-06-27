@@ -65,7 +65,7 @@ def apply_translation(latents, vector_path, scroll_value):
 LATENT_TRANSFORMATIONS = {
     "Se_0": partial(apply_projection, vector_path="vectors_editing/custom/sex.npy", proj_value=1.2),
     "Se_1": partial(apply_projection, vector_path="vectors_editing/custom/sex.npy", proj_value=-1),
-    "Bald": {"vector_path": "vectors_editing/custom/from_bald.npy", "bald": 2, "hairy": -1.5},
+    "Bald": partial(apply_projection, vector_path="vectors_editing/custom/from_bald.npy", proj_value=5.0),
     "make_hair": partial(apply_translation, vector_path="vectors_editing/custom/from_bald.npy", scroll_value=-1.5),
     "A_0": partial(apply_projection, vector_path="vectors_editing/custom/interface_age.npy", proj_value=-20),
     "A_1": partial(apply_projection, vector_path="vectors_editing/custom/interface_age.npy", proj_value=5),
@@ -178,6 +178,8 @@ def get_img_transformations(img_name, list_of_transformations):
         if att in list_of_transformations:
             transformations.append(att+"_max")
             transformations.append(att+"_min")
+    if "Bald" in list_of_transformations and img_att["Hc"] != 4:
+        transformations.append("Bald")
     return transformations
 
 
@@ -237,6 +239,6 @@ def iterate_over_dataset(dataset_folder, destination_folder, list_of_transformat
 
 
 if __name__ == "__main__":
-    LIST_OF_TRANSFORMATIONS = ["A", "B", "bald", "Be", "Bn", "Bp", "Ch", "D", "Hc", "Hs", "N", "Pn", "Se", "Sk"]
+    LIST_OF_TRANSFORMATIONS = ["A", "B", "Bald", "Be", "Bn", "Bp", "Ch", "D", "Hc", "Hs", "N", "Pn", "Se", "Sk"]
 
     iterate_over_dataset("CeterisParibusDataset/", "Test", LIST_OF_TRANSFORMATIONS)
