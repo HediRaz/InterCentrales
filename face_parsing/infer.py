@@ -1,10 +1,7 @@
 from model import BiSeNet
 
-import torch
-from torch.nn.functional import max_pool2d, avg_pool2d
-
 import os
-import os.path as osp
+import torch
 import numpy as np
 from PIL import Image
 import torchvision.transforms as transforms
@@ -18,7 +15,7 @@ def load_model(cp='79999_iter.pth'):
     n_classes = 19
     net = BiSeNet(n_classes=n_classes)
     net.cuda()
-    save_pth = osp.join('face_parsing/res/cp', cp)
+    save_pth = os.path.join('face_parsing/res/cp', cp)
     net.load_state_dict(torch.load(save_pth))
     net.eval()
     return net
@@ -150,6 +147,7 @@ def get_hair_mask(parsing):
     mask = parsing == 17
     return mask
 
+
 def delete_foreground(img, foreground_mask, delta=5):
     """ Delete the foreground of the image
 
@@ -177,15 +175,6 @@ def delete_foreground(img, foreground_mask, delta=5):
         img[i, indexes_j[indexes_j >= (j_min + j_max) / 2], :] = img[i, j_max]
 
     img = np.where(np.stack((foreground_mask, foreground_mask, foreground_mask), -1), cv2.medianBlur(img, 5), img)
-    # for j in np.unique(f_indexes[1]):
-    #     arg_j = f_indexes[1] == j
-    #     indexes_i = f_indexes[0][arg_j]
-    #     i_max = max(indexes_i)
-    #     i_min = min(indexes_i)
-    #     i_max = min(511, i_max+5)
-    #     i_min = max(0, i_min-5)
-    #     img[indexes_i, j, :] = (img[indexes_i, j, :] + img[i_min, j] + np.tile(np.linspace(0, 1, indexes_i.shape[0]), (3, 1)).T * (img[i_max, j] - img[i_min, j])) / 2
-    
     return img
 
 
@@ -196,7 +185,7 @@ def replace_obj(origin_image, edit_image, origin_mask, edit_mask, o_pos, e_pos, 
 
     e_indexes = np.where(edit_mask)
     print(e_indexes[1].shape)
-    o_indexes  = [
+    o_indexes = [
         e_indexes[0] + (o_pos[0] - e_pos[0]),
         e_indexes[1] + (o_pos[1] - e_pos[1]),
     ]
@@ -264,7 +253,7 @@ def change_hair_color_smooth(img, parsing, color="blond"):
     return edit_img
 
 
-def make_shape_under_eye(img, mask_eye, color:list, max=True):
+def make_shape_under_eye(img, mask_eye, color: list, max=True):
     """
     Makes a large shape under mask_eye, of the color 'color'
     max=True means we keep the color, else we average the color under the mask and add 60 to lighten it further
@@ -285,7 +274,7 @@ def make_shape_under_eye(img, mask_eye, color:list, max=True):
     return img
 
 
-def make_bags(img : np.array, parsing, max=True, occident=True):
+def make_bags(img: np.array, parsing, max=True, occident=True):
     """
     Adds drawings for bags under eyes feature under the eye.
     max=True means we darken the eye, lighten if False
@@ -352,14 +341,14 @@ def make_pointy_nose(img, parsing):
 
     x_bounds = [x_min + dx // 4, x_max - dx // 4]
 
-    cond = np.logical_and(indexes[1]>x_bounds[0], indexes[1]<x_bounds[1])
+    cond = np.logical_and(indexes[1] > x_bounds[0], indexes[1] < x_bounds[1])
 
     indexes[0] = indexes[0][cond]
     indexes[1] = indexes[1][cond]
 
     img[indexes[0], indexes[1], :] = color
 
-    indexes[0] +=  dy // 5
+    indexes[0] += dy // 5
     img[indexes[0], indexes[1], :] = color
 
     return img
@@ -382,21 +371,20 @@ def make_flat_nose(img, parsing):
 
     y_bounds = [y_min + 3*dy // 4, y_max]
 
-    cond = np.logical_and(indexes[0]>y_bounds[0], indexes[0]<y_bounds[1])
+    cond = np.logical_and(indexes[0] > y_bounds[0], indexes[0] < y_bounds[1])
 
     indexes[0] = indexes[0][cond]
     indexes[1] = indexes[1][cond]
 
-    indexes[0] +=  dy // 10
+    indexes[0] += dy // 10
 
     img[indexes[0], indexes[1], :] = color
 
-    indexes[1] +=  dx // 5
+    indexes[1] += dx // 5
     img[indexes[0], indexes[1], :] = color
 
-    indexes[1] -=  2 * dx // 5
+    indexes[1] -= 2 * dx // 5
     img[indexes[0], indexes[1], :] = color
-
 
     return img
 
@@ -408,12 +396,7 @@ def make_balls_around_mouth(img, parsing):
     x_min = np.min(indexes[1])
     x_max = np.max(indexes[1])
     y_min = np.min(indexes[0])
-    y_max = np.max(indexes[0])
     dx = int((x_max - x_min) * 1.3)
-    dy = y_max - y_min
-    
-    x_left = x_min - dx // 2
-    x_right = x_max + dx // 2
 
     square_indexes = [np.concatenate([np.arange(0, dx) for _ in range(dx)], axis=0), np.concatenate([np.ones(dx) * i for i in range(dx)], axis=0)]
 
@@ -432,19 +415,31 @@ def make_balls_around_mouth(img, parsing):
     return img
 
 
-if __name__ == "__main__":
-    from PIL import image
-    net = load_model()
-    o_path = "../Dataset/2_1_0_1_0_0_4_1_2.png"
-    o_img = Image.open(o_path)
-    e_path = "../Dataset/1_0_0_0_1_0_3_0_0.png"
-    e_img = Image.open(e_path)
+def make_bigger(img, mask):
+    img = np.array(img)
+    idx, idy = np.where(mask)
+    minx, maxx = min(idx), max(idx)
+    miny, maxy = min(idy), max(idy)
+    gx, gy = (minx + maxx) // 2, (miny + maxy) // 2
+    mask = np.float32(mask[minx:maxx, miny:maxy])
+    new_shape = (int(mask.shape[0]*1.1), int(mask.shape[1]*1.5))
+    mask = cv2.resize(mask, new_shape, interpolation=cv2.INTER_CUBIC)
+    mask = mask > 0.3
+    mask = np.stack((mask, mask, mask), -1)
+    object = np.uint8(cv2.resize(img[minx:maxx, miny:maxy], new_shape, interpolation=cv2.INTER_CUBIC))
+    minx, maxx = gx - new_shape[1]//2, gx + new_shape[1]//2 + new_shape[1] % 2
+    miny, maxy = gy - new_shape[0]//2, gy + new_shape[0]//2 + new_shape[0] % 2
+    img[minx: maxx, miny: maxy] = np.where(mask, object, img[minx: maxx, miny: maxy])
+    return img
 
-    parsing = compute_mask(o_img, net)
-    mask, _ = get_mouth_mask(parsing)
-    img = make_balls_around_mouth(np.array(o_img), mask)
 
-    img = Image.fromarray(img)
-    img.save("makeup/test_fonts.png")
+def make_big_nose(img, parsing):
+    nose_mask = get_nose_mask(parsing)
+    img = make_bigger(img, nose_mask)
+    return img
 
-    print("Finished")
+
+def make_big_lips(img, parsing):
+    lips_mask = get_mouth_mask(parsing)
+    img = make_bigger(img, lips_mask)
+    return img
