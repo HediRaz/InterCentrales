@@ -65,6 +65,9 @@ def apply_translation(latents, vector_path, scroll_value):
 LATENT_TRANSFORMATIONS = {
     "Se_0": partial(apply_projection, vector_path="vectors_editing/custom/sex.npy", proj_value=1.2),
     "Se_1": partial(apply_projection, vector_path="vectors_editing/custom/sex.npy", proj_value=-1),
+    "Sk_0": partial(apply_projection, vector_path="vectors_editing/custom/tan.npy", proj_value=-1.2),
+    "Sk_1": partial(apply_projection, vector_path="vectors_editing/custom/tan.npy", proj_value=0),
+    "Sk_2": partial(apply_projection, vector_path="vectors_editing/custom/tan.npy", proj_value=1.2),
     "Bald": partial(apply_projection, vector_path="vectors_editing/custom/from_bald.npy", proj_value=5.0),
     "make_hair": partial(apply_translation, vector_path="vectors_editing/custom/from_bald.npy", scroll_value=-1.5),
     "A_0": partial(apply_projection, vector_path="vectors_editing/custom/interface_age.npy", proj_value=-20),

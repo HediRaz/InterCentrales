@@ -148,6 +148,22 @@ def get_hair_mask(parsing):
     return mask
 
 
+def get_eyesbrow_mask(parsing):
+    """ Get the eyesbrow mask of the image """
+    mask = np.logical_or(parsing == 2, parsing == 3)
+    return mask
+
+
+def get_face_mask(parsing):
+    """ Get the face mask of the image """
+    mask = parsing == 1
+    mask = np.logical_or(mask, parsing == 7)
+    mask = np.logical_or(mask, parsing == 8)
+    mask = np.logical_or(mask, parsing == 10)
+    mask = np.logical_or(mask, parsing == 14)
+    return mask
+
+
 def delete_foreground(img, foreground_mask, delta=5):
     """ Delete the foreground of the image
 
@@ -442,4 +458,14 @@ def make_big_nose(img, parsing):
 def make_big_lips(img, parsing):
     lips_mask = get_mouth_mask(parsing)
     img = make_bigger(img, lips_mask)
+    return img
+
+
+def make_tan(img, parsing):
+    mask = get_face_mask(parsing)
+    img[mask] = np.uint8(0.7*img[mask] + 0.3*np.array([157, 79, 0]))  # np.uint8(img[mask]**0.9)
+    # mask = get_hair_mask(parsing)
+    # mask = np.logical_or(mask, get_eyesbrow_mask(parsing))
+    # color_a = np.array([0, 0, 0])
+    # img[mask] = np.uint8(0.6*color_a + 0.4*img[mask])
     return img
