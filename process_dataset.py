@@ -8,9 +8,6 @@ from functools import partial
 
 import torch
 import numpy as np
-import matplotlib
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
 from PIL import Image
 from torchvision import transforms
 from face_parsing import infer
@@ -129,28 +126,6 @@ def reencode(img):
     return decode(latents)
 
 
-def _reencode(img_path, img_transformations=[], latents_transformations=[]):
-    matplotlib.use("TkAgg")
-    img = Image.open(img_path).resize((512, 512))
-    plt.figure("Original Image")
-    plt.imshow(img)
-
-    parsing = infer.compute_mask(img, parsing_net)
-    img = np.array(img)
-    for t in img_transformations:
-        img = t(img, parsing)
-    plt.figure("Original Image edited")
-    plt.imshow(img)
-
-    latents = encode(Image.fromarray(img))
-    for t in latents_transformations:
-        latents = t(latents)
-
-    plt.figure("Re-encoded Image")
-    plt.imshow(decode(latents))
-    plt.show()
-
-
 def parse_img_name(img_name):
     Sk, A, Se, C, P, B, Hc, D, Hs = img_name.split("_")
     Hs = Hs.split(".")[0]
@@ -173,14 +148,15 @@ def get_img_transformations(img_name, list_of_transformations):
     img_att = parse_img_name(img_name)
     transformations = []
     for att in POSSIBLE_VALUES:
-        if att in list_of_transformations:
-            for val in POSSIBLE_VALUES[att]:
-                if img_att[att] != val:
-                    transformations.append(att+"_"+val)
+        for val in POSSIBLE_VALUES[att]:
+            if img_att[att] != val:
+                t_name = att+"_"+val
+                if t_name in list_of_transformations:
+                    transformations.append(t_name)
     for att in CURSOR_FEATURES:
-        if att in list_of_transformations:
-            transformations.append(att+"_max")
-            transformations.append(att+"_min")
+        for t_name in [att+"_max", att+"_min"]:
+            if t_name in list_of_transformations:
+                transformations.append(t_name)
     if "Bald" in list_of_transformations and img_att["Hc"] != 4:
         transformations.append("Bald")
     return transformations
@@ -242,6 +218,6 @@ def iterate_over_dataset(dataset_folder, destination_folder, list_of_transformat
 
 
 if __name__ == "__main__":
-    LIST_OF_TRANSFORMATIONS = ["A", "B", "Bald", "Be", "Bn", "Bp", "Ch", "D", "Hc", "Hs", "N", "Pn", "Se", "Sk"]
+    LIST_OF_TRANSFORMATIONS = ["A_0", "B_1", "Bald", "Be_min", "Bn_min", "Bp_min", "Ch_max", "D_0", "Hc_1", "Hs_0", "Ne_max", "Pn_min", "Se_0", "Sk_0"]
 
     iterate_over_dataset("CeterisParibusDataset/", "Test", LIST_OF_TRANSFORMATIONS)
